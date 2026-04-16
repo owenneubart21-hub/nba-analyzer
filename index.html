@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBA 3-Point Shooting Analyzer</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #020815;
+    --navy2: #060f24;
+    --navy3: #0e2450;
+    --gold: #fbbf24;
+    --gold2: #f59e0b;
+    --glass: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.08);
+    --text: #f0f4ff;
+    --muted: #8ba0c4;
+    --dim: #4a5f84;
+    --green: #4ade80;
+    --red: #f87171;
+    --header: 'Syne', sans-serif;
+    --body: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  body {
+    font-family: var(--body);
+    background: var(--navy);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .bg-grid {
+    position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(13,36,80,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(13,36,80,0.3) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .bg-radial {
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(19,46,104,0.5), transparent);
+    pointer-events: none; z-index: 0;
+  }
+
+  .content { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 20px 60px; }
+
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 24px 0; margin-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+  .logo h1 { font-family: var(--header); font-weight: 800; font-size: 1.4rem; }
+  .logo h1 span { color: var(--gold); }
+  .live { font-family: var(--mono); font-size: 0.7rem; color: var(--dim); text-align: right; }
+  .live strong { color: var(--green); }
+
+  .team-filter { margin-bottom: 28px; }
+  .filter-label { font-family: var(--header); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--dim); margin-bottom: 10px; }
+  .team-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+  .team-btn {
+    font-family: var(--mono); font-size: 0.72rem; padding: 5px 10px;
+    border-radius: 6px; border: 1px solid var(--border);
+    background: var(--glass); color: var(--dim); cursor: pointer;
+    transition: all 0.15s;
+  }
+  .team-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .team-btn.active { background: rgba(251,191,36,0.12); border-color: var(--gold); color: var(--gold); }
+  .team-btn.all-btn {
+    font-family: var(--header); font-weight: 600; font-size: 0.75rem;
+    padding: 5px 14px; background: var(--gold2); border-color: var(--gold2); color: #000;
+  }
+  .team-btn.all-btn.inactive { background: var(--glass); border-color: var(--border); color: var(--muted); }
+
+  .section-title {
+    font-family: var(--header); font-weight: 700; font-size: 0.9rem;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text); margin-bottom: 16px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 40px; }
+  .stat-card {
+    background: var(--glass); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 20px;
+  }
+  .stat-card .label { font-family: var(--header); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--dim); margin-bottom: 6px; }
+  .stat-card .value { font-family: var(--mono); font-size: 1.6rem; color: var(--gold); }
+  .stat-card .sub { font-family: var(--body); font-size: 0.7rem; color: var(--dim); margin-top: 4px; }
+
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; }
+  thead tr { border-bottom: 1px solid var(--border); }
+  th { padding: 8px 12px; text-align: right; color: var(--gold); font-family: var(--header); font-weight: 700; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.07em; }
+  th:first-child { text-align: left; }
+  tbody tr { border-bottom: 1px solid rgba(255,255,255,0.03); }
+  tbody tr:first-child { background: rgba(251,191,36,0.04); }
+  td { padding: 10px 12px; text-align: right; color: var(--muted); }
+  td:first-child { text-align: left; color: var(--text); font-family: var(--body); }
+  td.baseline { color: var(--gold); font-weight: 600; font-family: var(--body); }
+  td.up { color: var(--green); }
+  td.down { color: var(--red); }
+
+  .loading {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 16px; padding: 80px 0; color: var(--muted);
+  }
+  .spinner {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 3px solid var(--navy3); border-top-color: var(--gold);
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-family: var(--header); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  .table-wrap { overflow-x: auto; margin-bottom: 40px; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 40px; }
+  @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-radial"></div>
+<div class="content">
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🏀</div>
+      <div>
+        <h1>NBA <span>3-Point</span> Analyzer</h1>
+        <div style="font-size:0.72rem;color:var(--dim);margin-top:2px;">Fatigue & Travel Impact on Shooting</div>
+      </div>
+    </div>
+    <div class="live"><strong>● LIVE</strong><br>Auto-updated nightly</div>
+  </header>
+
+  <div class="team-filter">
+    <div class="filter-label">Filter by Team</div>
+    <div class="team-buttons" id="teamButtons"></div>
+  </div>
+
+  <div id="app">
+    <div class="loading">
+      <div class="spinner"></div>
+      <div class="loading-text">Loading game data...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://oacuhldhlknpwtgdstgo.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
+  'eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hY3VobGRobGtucHd0Z2RzdGdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDg1NjgsImV4cCI6MjA5MTY4NDU2OH0.' +
+  'u4hupp19Ne9ZZRo5ThyGEuxcLH_XFGq6NJe2ne_sOjI'
+);
+
+const TEAMS = [
+  "Atlanta Hawks","Boston Celtics","Brooklyn Nets","Charlotte Hornets",
+  "Chicago Bulls","Cleveland Cavaliers","Dallas Mavericks","Denver Nuggets",
+  "Detroit Pistons","Golden State Warriors","Houston Rockets","Indiana Pacers",
+  "LA Clippers","Los Angeles Lakers","Memphis Grizzlies","Miami Heat",
+  "Milwaukee Bucks","Minnesota Timberwolves","New Orleans Pelicans","New York Knicks",
+  "Oklahoma City Thunder","Orlando Magic","Philadelphia 76ers","Phoenix Suns",
+  "Portland Trail Blazers","Sacramento Kings","San Antonio Spurs","Toronto Raptors",
+  "Utah Jazz","Washington Wizards"
+];
+
+const ABBR = {
+  "Atlanta Hawks":"ATL","Boston Celtics":"BOS","Brooklyn Nets":"BKN","Charlotte Hornets":"CHA",
+  "Chicago Bulls":"CHI","Cleveland Cavaliers":"CLE","Dallas Mavericks":"DAL","Denver Nuggets":"DEN",
+  "Detroit Pistons":"DET","Golden State Warriors":"GSW","Houston Rockets":"HOU","Indiana Pacers":"IND",
+  "LA Clippers":"LAC","Los Angeles Lakers":"LAL","Memphis Grizzlies":"MEM","Miami Heat":"MIA",
+  "Milwaukee Bucks":"MIL","Minnesota Timberwolves":"MIN","New Orleans Pelicans":"NOP","New York Knicks":"NYK",
+  "Oklahoma City Thunder":"OKC","Orlando Magic":"ORL","Philadelphia 76ers":"PHI","Phoenix Suns":"PHX",
+  "Portland Trail Blazers":"POR","Sacramento Kings":"SAC","San Antonio Spurs":"SAS","Toronto Raptors":"TOR",
+  "Utah Jazz":"UTA","Washington Wizards":"WAS"
+};
+
+let allGames = [];
+let selectedTeam = null;
+
+function avg(arr) {
+  const valid = arr.filter(x => x != null && !isNaN(x));
+  if (!valid.length) return 0;
+  return valid.reduce((a,b) => a+b, 0) / valid.length;
+}
+
+function round1(x) { return Math.round(x * 10) / 10; }
+
+function getGames(team) {
+  if (!team) return allGames;
+  return allGames.filter(g => g.home_team === team || g.away_team === team);
+}
+
+function getThreePct(games, team) {
+  const pcts = [];
+  for (const g of games) {
+    if (!team) {
+      if (g.home_three_pct != null) pcts.push(g.home_three_pct);
+      if (g.away_three_pct != null) pcts.push(g.away_three_pct);
+    } else if (g.home_team === team && g.home_three_pct != null) {
+      pcts.push(g.home_three_pct);
+    } else if (g.away_team === team && g.away_three_pct != null) {
+      pcts.push(g.away_three_pct);
+    }
+  }
+  return round1(avg(pcts));
+}
+
+function getB2BGames(games, team, b2b) {
+  return games.filter(g => {
+    if (!team) return b2b ? (g.home_b2b || g.away_b2b) : (!g.home_b2b && !g.away_b2b);
+    if (g.home_team === team) return b2b ? g.home_b2b : !g.home_b2b;
+    if (g.away_team === team) return b2b ? g.away_b2b : !g.away_b2b;
+    return false;
+  });
+}
+
+function getTzGames(games, tz) {
+  return games.filter(g => g.tz_difference === tz);
+}
+
+function colorClass(val, base) {
+  if (val > base + 0.3) return 'up';
+  if (val < base - 0.3) return 'down';
+  return '';
+}
+
+function renderApp() {
+  const games = getGames(selectedTeam);
+  const baseline = getThreePct(games, selectedTeam);
+
+  const b2bGames = getB2BGames(games, selectedTeam, true);
+  const restedGames = getB2BGames(games, selectedTeam, false);
+  const b2bPct = getThreePct(b2bGames, selectedTeam);
+  const restedPct = getThreePct(restedGames, selectedTeam);
+
+  const tz0 = getThreePct(getTzGames(games, 0), selectedTeam);
+  const tz1 = getThreePct(getTzGames(games, 1), selectedTeam);
+  const tz2 = getThreePct(getTzGames(games, 2), selectedTeam);
+  const tz3 = getThreePct(getTzGames(games, 3), selectedTeam);
+
+  // Per-team 3P% on B2B
+  const teamRows = TEAMS.map(team => {
+    const tg = allGames.filter(g => g.home_team === team || g.away_team === team);
+    const all = getThreePct(tg, team);
+    const b2b = getThreePct(getB2BGames(tg, team, true), team);
+    const rested = getThreePct(getB2BGames(tg, team, false), team);
+    const tz2plus = getThreePct(tg.filter(g => g.tz_difference >= 2), team);
+    return { team, all, b2b, rested, tz2plus, b2bGames: getB2BGames(tg, team, true).length };
+  }).sort((a,b) => b.all - a.all);
+
+  document.getElementById('app').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Baseline 3P%</div>
+        <div class="value">${baseline}%</div>
+        <div class="sub">${games.length} games</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Back-to-Back 3P%</div>
+        <div class="value" style="color:${b2bPct < baseline ? 'var(--red)' : 'var(--green)'}">${b2bPct}%</div>
+        <div class="sub">${b2bGames.length} B2B games · ${b2bPct < baseline ? '▼' : '▲'} ${Math.abs(round1(b2bPct - baseline))}pp</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Rested (2+ days) 3P%</div>
+        <div class="value" style="color:${restedPct >= baseline ? 'var(--green)' : 'var(--red)'}">${restedPct}%</div>
+        <div class="sub">${restedGames.length} rested games</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">3-Zone Travel 3P%</div>
+        <div class="value" style="color:${tz3 < baseline ? 'var(--red)' : 'var(--green)'}">${tz3}%</div>
+        <div class="sub">${getTzGames(games,3).length} games · max fatigue</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <div class="section-title">B2B vs Rested 3P%</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Scenario</th><th>Games</th><th>3P%</th><th>vs Baseline</th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td class="baseline">All Games (Baseline)</td>
+                <td>${games.length}</td>
+                <td>${baseline}%</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>Rested (2+ days)</td>
+                <td>${restedGames.length}</td>
+                <td class="${colorClass(restedPct, baseline)}">${restedPct}%</td>
+                <td class="${colorClass(restedPct, baseline)}">${restedPct >= baseline ? '+' : ''}${round1(restedPct - baseline)}pp</td>
+              </tr>
+              <tr>
+                <td>Back-to-Back</td>
+                <td>${b2bGames.length}</td>
+                <td class="${colorClass(b2bPct, baseline)}">${b2bPct}%</td>
+                <td class="${colorClass(b2bPct, baseline)}">${b2bPct >= baseline ? '+' : ''}${round1(b2bPct - baseline)}pp</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">Timezone Crossings 3P%</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Scenario</th><th>Games</th><th>3P%</th><th>vs Baseline</th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td class="baseline">All Games (Baseline)</td>
+                <td>${games.length}</td>
+                <td>${baseline}%</td>
+                <td>—</td>
+              </tr>
+              ${[0,1,2,3].map(tz => {
+                const tzG = getTzGames(games, tz);
+                const pct = [tz0,tz1,tz2,tz3][tz];
+                return `<tr>
+                  <td>${tz === 0 ? 'Same Zone' : tz + ' Zone' + (tz > 1 ? 's' : '')}</td>
+                  <td>${tzG.length}</td>
+                  <td class="${colorClass(pct, baseline)}">${pct}%</td>
+                  <td class="${colorClass(pct, baseline)}">${pct >= baseline ? '+' : ''}${round1(pct - baseline)}pp</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">All Teams — 3P% Breakdown</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>#</th><th style="text-align:left">Team</th>
+          <th>Overall 3P%</th><th>Rested 3P%</th><th>B2B 3P%</th><th>B2B Diff</th><th>2+TZ 3P%</th><th>2+TZ Diff</th>
+        </tr></thead>
+        <tbody>
+          ${teamRows.map((r, i) => `
+            <tr>
+              <td style="color:var(--dim);font-size:0.7rem">#${i+1}</td>
+              <td style="text-align:left;font-family:var(--body);color:var(--text)">${ABBR[r.team]}</td>
+              <td>${r.all}%</td>
+              <td class="${colorClass(r.rested, r.all)}">${r.rested}%</td>
+              <td class="${colorClass(r.b2b, r.all)}">${r.b2b}%</td>
+              <td class="${colorClass(r.b2b, r.all)}">${r.b2b >= r.all ? '+' : ''}${round1(r.b2b - r.all)}pp</td>
+              <td class="${colorClass(r.tz2plus, r.all)}">${r.tz2plus}%</td>
+              <td class="${colorClass(r.tz2plus, r.all)}">${r.tz2plus >= r.all ? '+' : ''}${round1(r.tz2plus - r.all)}pp</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+async function loadData() {
+  let all = [];
+  let from = 0;
+  while (true) {
+    const { data, error } = await sb
+      .from('NBA_Games')
+      .select('home_team,away_team,home_three_pct,away_three_pct,home_b2b,away_b2b,home_rest_days,away_rest_days,tz_difference,travel_direction')
+      .range(from, from + 499);
+    if (error || !data || data.length === 0) break;
+    all = [...all, ...data];
+    if (data.length < 500) break;
+    from += 500;
+  }
+  allGames = all;
+
+  // Build team buttons
+  const container = document.getElementById('teamButtons');
+  const allBtn = document.createElement('button');
+  allBtn.className = 'team-btn all-btn';
+  allBtn.textContent = 'ALL';
+  allBtn.onclick = () => { selectedTeam = null; updateButtons(); renderApp(); };
+  container.appendChild(allBtn);
+
+  TEAMS.forEach(team => {
+    const btn = document.createElement('button');
+    btn.className = 'team-btn';
+    btn.textContent = ABBR[team];
+    btn.onclick = () => {
+      selectedTeam = selectedTeam === team ? null : team;
+      updateButtons();
+      renderApp();
+    };
+    container.appendChild(btn);
+  });
+
+  renderApp();
+}
+
+function updateButtons() {
+  const btns = document.querySelectorAll('.team-btn');
+  btns.forEach(btn => {
+    if (btn.classList.contains('all-btn')) {
+      btn.classList.toggle('inactive', selectedTeam !== null);
+    } else {
+      const team = TEAMS.find(t => ABBR[t] === btn.textContent);
+      btn.classList.toggle('active', team === selectedTeam);
+    }
+  });
+}
+
+loadData();
+</script>
+</body>
+</html>
