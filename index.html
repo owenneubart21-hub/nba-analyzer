@@ -280,6 +280,10 @@ function getThreePct(games, team) {
   return r1(avg(pcts));
 }
 
+function getRestDays(g, team) {
+  return g.home_team === team ? g.home_rest_days : g.away_rest_days;
+}
+
 function isB2B(g, team) {
   return g.home_team === team ? g.home_b2b : g.away_b2b;
 }
@@ -311,7 +315,8 @@ function colorClass(val, base) {
 function applyFilter(games, team) {
   switch(glFilter) {
     case 'b2b': return games.filter(g => isB2B(g, team));
-    case 'rested': return games.filter(g => !isB2B(g, team));
+    case 'rest1': return games.filter(g => getRestDays(g, team) === 1);
+    case 'rest2plus': return games.filter(g => getRestDays(g, team) >= 2);
     case 'tz0': return games.filter(g => g.tz_difference === 0);
     case 'tz1': return games.filter(g => g.tz_difference === 1);
     case 'tz2': return games.filter(g => g.tz_difference === 2);
@@ -375,12 +380,16 @@ function renderGlobalStats() {
             <thead><tr><th>Scenario</th><th>Games</th><th>3P%</th><th>vs Baseline</th></tr></thead>
             <tbody>
               <tr><td class="baseline">All Games</td><td>${games.length}</td><td>${baseline}%</td><td>—</td></tr>
+              <tr><td>Back-to-Back (0 days)</td><td>${b2bAll.length}</td>
+                <td class="${colorClass(b2bPct,baseline)}">${b2bPct}%</td>
+                <td class="${colorClass(b2bPct,baseline)}">${b2bPct>=baseline?'+':''}${r1(b2bPct-baseline)}pp</td></tr>
+              <tr><td>1 Day Rest</td>
+                <td>${games.filter(g=>(g.home_rest_days===1&&!g.home_b2b)||(g.away_rest_days===1&&!g.away_b2b)).length}</td>
+                <td class="${colorClass(getThreePct(games.filter(g=>g.home_rest_days===1||g.away_rest_days===1),null),baseline)}">${getThreePct(games.filter(g=>g.home_rest_days===1||g.away_rest_days===1),null)}%</td>
+                <td class="${colorClass(getThreePct(games.filter(g=>g.home_rest_days===1||g.away_rest_days===1),null),baseline)}">${getThreePct(games.filter(g=>g.home_rest_days===1||g.away_rest_days===1),null)>=baseline?'+':''}${r1(getThreePct(games.filter(g=>g.home_rest_days===1||g.away_rest_days===1),null)-baseline)}pp</td></tr>
               <tr><td>Rested (2+ days)</td><td>${restedAll.length}</td>
                 <td class="${colorClass(restedPct,baseline)}">${restedPct}%</td>
                 <td class="${colorClass(restedPct,baseline)}">${restedPct>=baseline?'+':''}${r1(restedPct-baseline)}pp</td></tr>
-              <tr><td>Back-to-Back</td><td>${b2bAll.length}</td>
-                <td class="${colorClass(b2bPct,baseline)}">${b2bPct}%</td>
-                <td class="${colorClass(b2bPct,baseline)}">${b2bPct>=baseline?'+':''}${r1(b2bPct-baseline)}pp</td></tr>
             </tbody>
           </table>
         </div>
@@ -434,7 +443,8 @@ function renderTeamView(team) {
   const tg = getTeamGames(team).sort((a,b) => b.game_date.localeCompare(a.game_date));
   const baseline = getThreePct(tg, team);
   const b2b = getThreePct(getB2B(tg,team,true), team);
-  const rested = getThreePct(getB2B(tg,team,false), team);
+  const rest1 = getThreePct(tg.filter(g=>getRestDays(g,team)===1), team);
+  const rest2plus = getThreePct(tg.filter(g=>getRestDays(g,team)>=2), team);
   const tz0 = getThreePct(getTz(tg,0), team);
   const tz1 = getThreePct(getTz(tg,1), team);
   const tz2 = getThreePct(getTz(tg,2), team);
@@ -478,12 +488,15 @@ function renderTeamView(team) {
             <thead><tr><th>Scenario</th><th>Games</th><th>3P%</th><th>vs Baseline</th></tr></thead>
             <tbody>
               <tr><td class="baseline">All Games</td><td>${tg.length}</td><td>${baseline}%</td><td>—</td></tr>
-              <tr><td>Rested (2+ days)</td><td>${getB2B(tg,team,false).length}</td>
-                <td class="${colorClass(rested,baseline)}">${rested}%</td>
-                <td class="${colorClass(rested,baseline)}">${rested>=baseline?'+':''}${r1(rested-baseline)}pp</td></tr>
-              <tr><td>Back-to-Back</td><td>${getB2B(tg,team,true).length}</td>
+              <tr><td>Back-to-Back (0 days)</td><td>${getB2B(tg,team,true).length}</td>
                 <td class="${colorClass(b2b,baseline)}">${b2b}%</td>
                 <td class="${colorClass(b2b,baseline)}">${b2b>=baseline?'+':''}${r1(b2b-baseline)}pp</td></tr>
+              <tr><td>1 Day Rest</td><td>${tg.filter(g=>getRestDays(g,team)===1).length}</td>
+                <td class="${colorClass(rest1,baseline)}">${rest1}%</td>
+                <td class="${colorClass(rest1,baseline)}">${rest1>=baseline?'+':''}${r1(rest1-baseline)}pp</td></tr>
+              <tr><td>Rested (2+ days)</td><td>${tg.filter(g=>getRestDays(g,team)>=2).length}</td>
+                <td class="${colorClass(rest2plus,baseline)}">${rest2plus}%</td>
+                <td class="${colorClass(rest2plus,baseline)}">${rest2plus>=baseline?'+':''}${r1(rest2plus-baseline)}pp</td></tr>
               <tr><td>Conference Games</td><td>${tg.filter(g=>isConf(g,team)).length}</td>
                 <td class="${colorClass(conf,baseline)}">${conf}%</td>
                 <td class="${colorClass(conf,baseline)}">${conf>=baseline?'+':''}${r1(conf-baseline)}pp</td></tr>
@@ -521,9 +534,10 @@ function renderTeamView(team) {
     <div class="gamelog-controls">
       <select onchange="setFilter(this.value)">
         <option value="all" ${glFilter==='all'?'selected':''}>All Games</option>
-        <optgroup label="── Fatigue ──">
-          <option value="b2b" ${glFilter==='b2b'?'selected':''}>Back-to-Back Only</option>
-          <option value="rested" ${glFilter==='rested'?'selected':''}>Rested (2+ days)</option>
+        <optgroup label="── Rest & Fatigue ──">
+          <option value="b2b" ${glFilter==='b2b'?'selected':''}>Back-to-Back (0 days rest)</option>
+          <option value="rest1" ${glFilter==='rest1'?'selected':''}>1 Day Rest</option>
+          <option value="rest2plus" ${glFilter==='rest2plus'?'selected':''}>Rested (2+ days)</option>
         </optgroup>
         <optgroup label="── Timezone ──">
           <option value="tz0" ${glFilter==='tz0'?'selected':''}>Same Timezone</option>
@@ -556,7 +570,7 @@ function renderTeamView(team) {
             const won = (isHome&&g.home_win==='W')||(!isHome&&g.home_win==='L');
             const myPct = isHome ? g.home_three_pct : g.away_three_pct;
             const myB2B = isHome ? g.home_b2b : g.away_b2b;
-            const myRest = isHome ? g.home_rest_days : g.away_rest_days;
+            const myRest = getRestDays(g, team);
             const confGame = isConf(g, team);
             const divGame = isDivision(g, team);
             const oppConf = CONF[opp];
