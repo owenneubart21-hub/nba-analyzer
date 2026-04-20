@@ -106,7 +106,6 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-text { font-family: var(--header); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; }
 
-  /* Team Banner */
   .team-banner {
     border-radius: 14px; padding: 24px 28px; margin-bottom: 28px;
     display: flex; align-items: center; justify-content: space-between;
@@ -119,25 +118,21 @@
   .banner-stat .val { font-family: var(--mono); font-size: 1.4rem; }
   .banner-stat .lbl { font-family: var(--header); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--dim); margin-top: 2px; }
 
-  /* Game Log */
-  .gamelog-controls {
-    display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
-  }
+  .gamelog-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
   .gamelog-controls select {
     font-family: var(--header); font-weight: 600; font-size: 0.8rem;
     background: var(--glass); border: 1px solid var(--border);
     color: var(--text); padding: 8px 14px; border-radius: 8px; cursor: pointer;
     outline: none; appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238ba0c4' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 10px center;
-    padding-right: 30px;
+    background-repeat: no-repeat; background-position: right 10px center; padding-right: 30px;
   }
   .gamelog-controls select:focus { border-color: var(--gold); }
   .gamelog-count { font-family: var(--mono); font-size: 0.75rem; color: var(--dim); margin-left: auto; }
 
   .gl-win { color: var(--green); font-weight: 600; }
   .gl-loss { color: var(--red); font-weight: 600; }
-  .gl-b2b { color: var(--red); font-size: 0.65rem; font-family: var(--header); font-weight: 700; letter-spacing: 0.05em; }
+  .gl-b2b { color: var(--red); font-size: 0.65rem; font-family: var(--header); font-weight: 700; }
   .gl-tz { color: var(--gold); }
 
   .pagination { display: flex; align-items: center; gap: 10px; justify-content: center; margin-top: 16px; }
@@ -284,6 +279,10 @@ function isConf(g, team) {
   return CONF[g.home_team] === CONF[g.away_team];
 }
 
+function getOpp(g, team) {
+  return g.home_team === team ? g.away_team : g.home_team;
+}
+
 function colorClass(val, base) {
   if (val > base + 0.3) return 'up';
   if (val < base - 0.3) return 'down';
@@ -300,6 +299,8 @@ function applyFilter(games, team) {
     case 'tz3': return games.filter(g => g.tz_difference === 3);
     case 'conf': return games.filter(g => isConf(g, team));
     case 'nonconf': return games.filter(g => !isConf(g, team));
+    case 'vseast': return games.filter(g => CONF[getOpp(g, team)] === 'East');
+    case 'vswest': return games.filter(g => CONF[getOpp(g, team)] === 'West');
     default: return games;
   }
 }
@@ -331,8 +332,8 @@ function renderGlobalStats() {
       </div>
       <div class="stat-card">
         <div class="label">Back-to-Back 3P%</div>
-        <div class="value" style="color:${b2bPct < baseline ? 'var(--red)' : 'var(--green)'}">${b2bPct}%</div>
-        <div class="sub">${b2bAll.length} B2B games · ${b2bPct < baseline ? '▼' : '▲'} ${Math.abs(r1(b2bPct-baseline))}pp</div>
+        <div class="value" style="color:${b2bPct<baseline?'var(--red)':'var(--green)'}">${b2bPct}%</div>
+        <div class="sub">${b2bAll.length} B2B games · ${b2bPct<baseline?'▼':'▲'} ${Math.abs(r1(b2bPct-baseline))}pp</div>
       </div>
       <div class="stat-card">
         <div class="label">Rested (2+ days) 3P%</div>
@@ -373,7 +374,7 @@ function renderGlobalStats() {
               <tr><td class="baseline">All Games</td><td>${games.length}</td><td>${baseline}%</td><td>—</td></tr>
               ${[0,1,2,3].map(tz => {
                 const tzG = getTz(games,tz);
-                const pct = getThreePct(tzG, null);
+                const pct = getThreePct(tzG,null);
                 return `<tr><td>${tz===0?'Same Zone':tz+' Zone'+(tz>1?'s':'')}</td><td>${tzG.length}</td>
                   <td class="${colorClass(pct,baseline)}">${pct}%</td>
                   <td class="${colorClass(pct,baseline)}">${pct>=baseline?'+':''}${r1(pct-baseline)}pp</td></tr>`;
@@ -412,27 +413,28 @@ function renderGlobalStats() {
 function renderTeamView(team) {
   const tg = getTeamGames(team).sort((a,b) => b.game_date.localeCompare(a.game_date));
   const baseline = getThreePct(tg, team);
-  const b2b = getThreePct(getB2B(tg, team, true), team);
-  const rested = getThreePct(getB2B(tg, team, false), team);
+  const b2b = getThreePct(getB2B(tg,team,true), team);
+  const rested = getThreePct(getB2B(tg,team,false), team);
   const tz0 = getThreePct(getTz(tg,0), team);
   const tz1 = getThreePct(getTz(tg,1), team);
   const tz2 = getThreePct(getTz(tg,2), team);
   const tz3 = getThreePct(getTz(tg,3), team);
   const conf = getThreePct(tg.filter(g=>isConf(g,team)), team);
   const nonconf = getThreePct(tg.filter(g=>!isConf(g,team)), team);
+  const vseast = getThreePct(tg.filter(g=>CONF[getOpp(g,team)]==='East'), team);
+  const vswest = getThreePct(tg.filter(g=>CONF[getOpp(g,team)]==='West'), team);
 
-  const wins = tg.filter(g => (g.home_team===team && g.home_win==='W') || (g.away_team===team && g.home_win==='L')).length;
+  const wins = tg.filter(g=>(g.home_team===team&&g.home_win==='W')||(g.away_team===team&&g.home_win==='L')).length;
   const losses = tg.length - wins;
   const winPct = tg.length ? r1(wins/tg.length*100) : 0;
-
   const colors = COLORS[team] || ['#1D4289','#A7ADB0'];
 
   const filtered = applyFilter(tg, team);
   const totalPages = Math.ceil(filtered.length / GL_PER_PAGE);
-  const paginated = filtered.slice(glPage*GL_PER_PAGE, (glPage+1)*GL_PER_PAGE);
+  const safePage = Math.min(glPage, Math.max(0, totalPages-1));
+  const paginated = filtered.slice(safePage*GL_PER_PAGE, (safePage+1)*GL_PER_PAGE);
 
   document.getElementById('app').innerHTML = `
-    <!-- Team Banner -->
     <div class="team-banner" style="background:linear-gradient(135deg,${colors[0]}22,${colors[1]}11,var(--navy2));border:1px solid ${colors[0]}44;">
       <div class="banner-left">
         <div class="abbr" style="color:${colors[1]}">${ABBR[team]}</div>
@@ -440,7 +442,7 @@ function renderTeamView(team) {
       </div>
       <div class="banner-stats">
         <div class="banner-stat"><div class="val" style="color:var(--gold)">${tg.length}</div><div class="lbl">Games</div></div>
-        <div class="banner-stat"><div class="val" style="color:var(--gold)">${wins}–${losses}</div><div class="lbl">Record</div></div>
+        <div class="banner-stat"><div class="val" style="color:var(--gold)">${wins}-${losses}</div><div class="lbl">Record</div></div>
         <div class="banner-stat"><div class="val" style="color:var(--gold)">${winPct}%</div><div class="lbl">Win %</div></div>
         <div class="banner-stat"><div class="val" style="color:var(--gold)">${baseline}%</div><div class="lbl">3P%</div></div>
         <div class="banner-stat"><div class="val" style="color:${b2b<baseline?'var(--red)':'var(--green)'}">${b2b}%</div><div class="lbl">B2B 3P%</div></div>
@@ -448,7 +450,6 @@ function renderTeamView(team) {
       </div>
     </div>
 
-    <!-- Breakdown Tables -->
     <div class="two-col">
       <div>
         <div class="section-title">B2B & Rest Breakdown</div>
@@ -463,6 +464,12 @@ function renderTeamView(team) {
               <tr><td>Back-to-Back</td><td>${getB2B(tg,team,true).length}</td>
                 <td class="${colorClass(b2b,baseline)}">${b2b}%</td>
                 <td class="${colorClass(b2b,baseline)}">${b2b>=baseline?'+':''}${r1(b2b-baseline)}pp</td></tr>
+              <tr><td>vs East Opponents</td><td>${tg.filter(g=>CONF[getOpp(g,team)]==='East').length}</td>
+                <td class="${colorClass(vseast,baseline)}">${vseast}%</td>
+                <td class="${colorClass(vseast,baseline)}">${vseast>=baseline?'+':''}${r1(vseast-baseline)}pp</td></tr>
+              <tr><td>vs West Opponents</td><td>${tg.filter(g=>CONF[getOpp(g,team)]==='West').length}</td>
+                <td class="${colorClass(vswest,baseline)}">${vswest}%</td>
+                <td class="${colorClass(vswest,baseline)}">${vswest>=baseline?'+':''}${r1(vswest-baseline)}pp</td></tr>
               <tr><td>Conference Games</td><td>${tg.filter(g=>isConf(g,team)).length}</td>
                 <td class="${colorClass(conf,baseline)}">${conf}%</td>
                 <td class="${colorClass(conf,baseline)}">${conf>=baseline?'+':''}${r1(conf-baseline)}pp</td></tr>
@@ -493,19 +500,26 @@ function renderTeamView(team) {
       </div>
     </div>
 
-    <!-- Game Log -->
     <div class="section-title">Game Log</div>
     <div class="gamelog-controls">
       <select onchange="setFilter(this.value)">
         <option value="all" ${glFilter==='all'?'selected':''}>All Games</option>
-        <option value="b2b" ${glFilter==='b2b'?'selected':''}>Back-to-Back Only</option>
-        <option value="rested" ${glFilter==='rested'?'selected':''}>Rested Only</option>
-        <option value="tz0" ${glFilter==='tz0'?'selected':''}>Same Timezone</option>
-        <option value="tz1" ${glFilter==='tz1'?'selected':''}>1 Zone Crossed</option>
-        <option value="tz2" ${glFilter==='tz2'?'selected':''}>2 Zones Crossed</option>
-        <option value="tz3" ${glFilter==='tz3'?'selected':''}>3 Zones Crossed</option>
-        <option value="conf" ${glFilter==='conf'?'selected':''}>Conference Games</option>
-        <option value="nonconf" ${glFilter==='nonconf'?'selected':''}>Non-Conference</option>
+        <optgroup label="Fatigue">
+          <option value="b2b" ${glFilter==='b2b'?'selected':''}>Back-to-Back Only</option>
+          <option value="rested" ${glFilter==='rested'?'selected':''}>Rested (2+ days)</option>
+        </optgroup>
+        <optgroup label="Timezone">
+          <option value="tz0" ${glFilter==='tz0'?'selected':''}>Same Timezone</option>
+          <option value="tz1" ${glFilter==='tz1'?'selected':''}>1 Zone Crossed</option>
+          <option value="tz2" ${glFilter==='tz2'?'selected':''}>2 Zones Crossed</option>
+          <option value="tz3" ${glFilter==='tz3'?'selected':''}>3 Zones Crossed</option>
+        </optgroup>
+        <optgroup label="Conference">
+          <option value="conf" ${glFilter==='conf'?'selected':''}>Conference Games</option>
+          <option value="nonconf" ${glFilter==='nonconf'?'selected':''}>Non-Conference Games</option>
+          <option value="vseast" ${glFilter==='vseast'?'selected':''}>vs East Opponents</option>
+          <option value="vswest" ${glFilter==='vswest'?'selected':''}>vs West Opponents</option>
+        </optgroup>
       </select>
       <span class="gamelog-count">${filtered.length} games</span>
     </div>
@@ -518,19 +532,20 @@ function renderTeamView(team) {
         <tbody>
           ${paginated.map(g => {
             const isHome = g.home_team === team;
-            const opp = isHome ? g.away_team : g.home_team;
+            const opp = getOpp(g, team);
             const myScore = isHome ? g.home_score : g.away_score;
             const oppScore = isHome ? g.away_score : g.home_score;
-            const won = (isHome && g.home_win==='W') || (!isHome && g.home_win==='L');
+            const won = (isHome&&g.home_win==='W')||(!isHome&&g.home_win==='L');
             const myPct = isHome ? g.home_three_pct : g.away_three_pct;
             const myB2B = isHome ? g.home_b2b : g.away_b2b;
             const myRest = isHome ? g.home_rest_days : g.away_rest_days;
             const confGame = isConf(g, team);
+            const oppConf = CONF[opp];
             return `<tr>
               <td style="color:var(--dim)">${g.game_date}</td>
-              <td style="text-align:left">${ABBR[opp] || opp}</td>
-              <td>${isHome ? 'HOME' : 'AWAY'}</td>
-              <td>${myScore}–${oppScore}</td>
+              <td style="text-align:left">${ABBR[opp]||opp} <span style="color:var(--dim);font-size:0.7rem">${oppConf}</span></td>
+              <td style="color:var(--dim)">${isHome?'HOME':'AWAY'}</td>
+              <td>${myScore}-${oppScore}</td>
               <td class="${won?'gl-win':'gl-loss'}">${won?'W':'L'}</td>
               <td class="${myPct!=null?(myPct>=baseline?'up':'down'):''}">${myPct!=null?myPct+'%':'—'}</td>
               <td class="${g.tz_difference>=2?'gl-tz':''}">${g.tz_difference}</td>
@@ -543,9 +558,9 @@ function renderTeamView(team) {
       </table>
     </div>
     <div class="pagination">
-      <button class="page-btn" onclick="changePage(-1)" ${glPage===0?'disabled':''}>← Prev</button>
-      <span class="page-info">${glPage+1} / ${totalPages||1}</span>
-      <button class="page-btn" onclick="changePage(1)" ${glPage>=totalPages-1?'disabled':''}>Next →</button>
+      <button class="page-btn" onclick="changePage(-1)" ${safePage===0?'disabled':''}>← Prev</button>
+      <span class="page-info">${safePage+1} / ${totalPages||1}</span>
+      <button class="page-btn" onclick="changePage(1)" ${safePage>=totalPages-1?'disabled':''}>Next →</button>
     </div>
   `;
 }
@@ -568,11 +583,8 @@ function selectTeam(team) {
   glFilter = 'all';
   glPage = 0;
   updateButtons();
-  if (selectedTeam) {
-    renderTeamView(selectedTeam);
-  } else {
-    renderGlobalStats();
-  }
+  if (selectedTeam) renderTeamView(selectedTeam);
+  else renderGlobalStats();
 }
 
 function updateButtons() {
