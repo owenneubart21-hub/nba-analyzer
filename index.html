@@ -121,13 +121,15 @@
   .gamelog-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
   .gamelog-controls select {
     font-family: var(--header); font-weight: 600; font-size: 0.8rem;
-    background: var(--glass); border: 1px solid var(--border);
-    color: var(--text); padding: 8px 14px; border-radius: 8px; cursor: pointer;
+    background: #0e2450; border: 1px solid var(--border);
+    color: var(--text); padding: 8px 32px 8px 14px; border-radius: 8px; cursor: pointer;
     outline: none; appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238ba0c4' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 10px center; padding-right: 30px;
+    background-repeat: no-repeat; background-position: right 10px center;
   }
   .gamelog-controls select:focus { border-color: var(--gold); }
+  .gamelog-controls select option { background: #0e2450; color: var(--text); }
+  .gamelog-controls select optgroup { background: #0e2450; color: var(--gold); }
   .gamelog-count { font-family: var(--mono); font-size: 0.75rem; color: var(--dim); margin-left: auto; }
 
   .gl-win { color: var(--green); font-weight: 600; }
@@ -234,6 +236,19 @@ const CONF = {
   "Utah Jazz":"West","Washington Wizards":"East"
 };
 
+const DIVISION = {
+  "Atlanta Hawks":"Southeast","Boston Celtics":"Atlantic","Brooklyn Nets":"Atlantic",
+  "Charlotte Hornets":"Southeast","Chicago Bulls":"Central","Cleveland Cavaliers":"Central",
+  "Dallas Mavericks":"Southwest","Denver Nuggets":"Northwest","Detroit Pistons":"Central",
+  "Golden State Warriors":"Pacific","Houston Rockets":"Southwest","Indiana Pacers":"Central",
+  "LA Clippers":"Pacific","Los Angeles Lakers":"Pacific","Memphis Grizzlies":"Southwest",
+  "Miami Heat":"Southeast","Milwaukee Bucks":"Central","Minnesota Timberwolves":"Northwest",
+  "New Orleans Pelicans":"Southwest","New York Knicks":"Atlantic","Oklahoma City Thunder":"Northwest",
+  "Orlando Magic":"Southeast","Philadelphia 76ers":"Atlantic","Phoenix Suns":"Pacific",
+  "Portland Trail Blazers":"Northwest","Sacramento Kings":"Pacific","San Antonio Spurs":"Southwest",
+  "Toronto Raptors":"Atlantic","Utah Jazz":"Northwest","Washington Wizards":"Southeast"
+};
+
 let allGames = [];
 let selectedTeam = null;
 let glFilter = 'all';
@@ -279,6 +294,10 @@ function isConf(g, team) {
   return CONF[g.home_team] === CONF[g.away_team];
 }
 
+function isDivision(g, team) {
+  return DIVISION[g.home_team] === DIVISION[g.away_team];
+}
+
 function getOpp(g, team) {
   return g.home_team === team ? g.away_team : g.home_team;
 }
@@ -299,6 +318,7 @@ function applyFilter(games, team) {
     case 'tz3': return games.filter(g => g.tz_difference === 3);
     case 'conf': return games.filter(g => isConf(g, team));
     case 'nonconf': return games.filter(g => !isConf(g, team));
+    case 'division': return games.filter(g => isDivision(g, team));
     case 'vseast': return games.filter(g => CONF[getOpp(g, team)] === 'East');
     case 'vswest': return games.filter(g => CONF[getOpp(g, team)] === 'West');
     default: return games;
@@ -421,13 +441,13 @@ function renderTeamView(team) {
   const tz3 = getThreePct(getTz(tg,3), team);
   const conf = getThreePct(tg.filter(g=>isConf(g,team)), team);
   const nonconf = getThreePct(tg.filter(g=>!isConf(g,team)), team);
-  const vseast = getThreePct(tg.filter(g=>CONF[getOpp(g,team)]==='East'), team);
-  const vswest = getThreePct(tg.filter(g=>CONF[getOpp(g,team)]==='West'), team);
+  const divGames = getThreePct(tg.filter(g=>isDivision(g,team)), team);
 
   const wins = tg.filter(g=>(g.home_team===team&&g.home_win==='W')||(g.away_team===team&&g.home_win==='L')).length;
   const losses = tg.length - wins;
   const winPct = tg.length ? r1(wins/tg.length*100) : 0;
   const colors = COLORS[team] || ['#1D4289','#A7ADB0'];
+  const myDiv = DIVISION[team];
 
   const filtered = applyFilter(tg, team);
   const totalPages = Math.ceil(filtered.length / GL_PER_PAGE);
@@ -452,7 +472,7 @@ function renderTeamView(team) {
 
     <div class="two-col">
       <div>
-        <div class="section-title">B2B & Rest Breakdown</div>
+        <div class="section-title">Breakdown</div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Scenario</th><th>Games</th><th>3P%</th><th>vs Baseline</th></tr></thead>
@@ -464,18 +484,15 @@ function renderTeamView(team) {
               <tr><td>Back-to-Back</td><td>${getB2B(tg,team,true).length}</td>
                 <td class="${colorClass(b2b,baseline)}">${b2b}%</td>
                 <td class="${colorClass(b2b,baseline)}">${b2b>=baseline?'+':''}${r1(b2b-baseline)}pp</td></tr>
-              <tr><td>vs East Opponents</td><td>${tg.filter(g=>CONF[getOpp(g,team)]==='East').length}</td>
-                <td class="${colorClass(vseast,baseline)}">${vseast}%</td>
-                <td class="${colorClass(vseast,baseline)}">${vseast>=baseline?'+':''}${r1(vseast-baseline)}pp</td></tr>
-              <tr><td>vs West Opponents</td><td>${tg.filter(g=>CONF[getOpp(g,team)]==='West').length}</td>
-                <td class="${colorClass(vswest,baseline)}">${vswest}%</td>
-                <td class="${colorClass(vswest,baseline)}">${vswest>=baseline?'+':''}${r1(vswest-baseline)}pp</td></tr>
               <tr><td>Conference Games</td><td>${tg.filter(g=>isConf(g,team)).length}</td>
                 <td class="${colorClass(conf,baseline)}">${conf}%</td>
                 <td class="${colorClass(conf,baseline)}">${conf>=baseline?'+':''}${r1(conf-baseline)}pp</td></tr>
               <tr><td>Non-Conference</td><td>${tg.filter(g=>!isConf(g,team)).length}</td>
                 <td class="${colorClass(nonconf,baseline)}">${nonconf}%</td>
                 <td class="${colorClass(nonconf,baseline)}">${nonconf>=baseline?'+':''}${r1(nonconf-baseline)}pp</td></tr>
+              <tr><td>vs Division (${myDiv})</td><td>${tg.filter(g=>isDivision(g,team)).length}</td>
+                <td class="${colorClass(divGames,baseline)}">${divGames}%</td>
+                <td class="${colorClass(divGames,baseline)}">${divGames>=baseline?'+':''}${r1(divGames-baseline)}pp</td></tr>
             </tbody>
           </table>
         </div>
@@ -504,19 +521,20 @@ function renderTeamView(team) {
     <div class="gamelog-controls">
       <select onchange="setFilter(this.value)">
         <option value="all" ${glFilter==='all'?'selected':''}>All Games</option>
-        <optgroup label="Fatigue">
+        <optgroup label="── Fatigue ──">
           <option value="b2b" ${glFilter==='b2b'?'selected':''}>Back-to-Back Only</option>
           <option value="rested" ${glFilter==='rested'?'selected':''}>Rested (2+ days)</option>
         </optgroup>
-        <optgroup label="Timezone">
+        <optgroup label="── Timezone ──">
           <option value="tz0" ${glFilter==='tz0'?'selected':''}>Same Timezone</option>
           <option value="tz1" ${glFilter==='tz1'?'selected':''}>1 Zone Crossed</option>
           <option value="tz2" ${glFilter==='tz2'?'selected':''}>2 Zones Crossed</option>
           <option value="tz3" ${glFilter==='tz3'?'selected':''}>3 Zones Crossed</option>
         </optgroup>
-        <optgroup label="Conference">
+        <optgroup label="── Conference ──">
           <option value="conf" ${glFilter==='conf'?'selected':''}>Conference Games</option>
           <option value="nonconf" ${glFilter==='nonconf'?'selected':''}>Non-Conference Games</option>
+          <option value="division" ${glFilter==='division'?'selected':''}>Division Games (${myDiv})</option>
           <option value="vseast" ${glFilter==='vseast'?'selected':''}>vs East Opponents</option>
           <option value="vswest" ${glFilter==='vswest'?'selected':''}>vs West Opponents</option>
         </optgroup>
@@ -540,10 +558,11 @@ function renderTeamView(team) {
             const myB2B = isHome ? g.home_b2b : g.away_b2b;
             const myRest = isHome ? g.home_rest_days : g.away_rest_days;
             const confGame = isConf(g, team);
+            const divGame = isDivision(g, team);
             const oppConf = CONF[opp];
             return `<tr>
               <td style="color:var(--dim)">${g.game_date}</td>
-              <td style="text-align:left">${ABBR[opp]||opp} <span style="color:var(--dim);font-size:0.7rem">${oppConf}</span></td>
+              <td style="text-align:left">${ABBR[opp]||opp} <span style="color:var(--dim);font-size:0.68rem">${oppConf}</span></td>
               <td style="color:var(--dim)">${isHome?'HOME':'AWAY'}</td>
               <td>${myScore}-${oppScore}</td>
               <td class="${won?'gl-win':'gl-loss'}">${won?'W':'L'}</td>
@@ -551,7 +570,7 @@ function renderTeamView(team) {
               <td class="${g.tz_difference>=2?'gl-tz':''}">${g.tz_difference}</td>
               <td>${myB2B?'<span class="gl-b2b">B2B</span>':'—'}</td>
               <td style="color:${myRest<=1?'var(--red)':myRest>=3?'var(--green)':'var(--muted)'}">${myRest}d</td>
-              <td style="color:var(--dim)">${confGame?'CONF':'NON'}</td>
+              <td style="color:var(--dim)">${divGame?'DIV':confGame?'CONF':'NON'}</td>
             </tr>`;
           }).join('')}
         </tbody>
