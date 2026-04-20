@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NBA 3-Point Analyzer</title>
+<title>NBA Analytics</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
@@ -41,7 +41,7 @@
     pointer-events: none; z-index: 0;
   }
 
-  .content { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; padding: 0 20px 80px; }
+  .content { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 0 20px 80px; }
 
   header {
     display: flex; align-items: center; justify-content: space-between;
@@ -78,20 +78,20 @@
     border-bottom: 1px solid var(--border);
   }
 
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 40px; }
-  .stat-card { background: var(--glass); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; }
-  .stat-card .label { font-family: var(--header); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--dim); margin-bottom: 6px; }
-  .stat-card .value { font-family: var(--mono); font-size: 1.6rem; color: var(--gold); }
-  .stat-card .sub { font-family: var(--body); font-size: 0.7rem; color: var(--dim); margin-top: 4px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 40px; }
+  .stat-card { background: var(--glass); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .stat-card .label { font-family: var(--header); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--dim); margin-bottom: 6px; }
+  .stat-card .value { font-family: var(--mono); font-size: 1.4rem; color: var(--gold); }
+  .stat-card .sub { font-family: var(--body); font-size: 0.68rem; color: var(--dim); margin-top: 4px; }
 
-  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; }
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.78rem; }
   thead tr { border-bottom: 1px solid var(--border); }
-  th { padding: 8px 12px; text-align: right; color: var(--gold); font-family: var(--header); font-weight: 700; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.07em; }
+  th { padding: 7px 10px; text-align: right; color: var(--gold); font-family: var(--header); font-weight: 700; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.07em; white-space: nowrap; }
   th:first-child { text-align: left; }
   tbody tr { border-bottom: 1px solid rgba(255,255,255,0.03); transition: background 0.1s; }
   tbody tr:hover { background: rgba(255,255,255,0.03); }
   tbody tr:first-child { background: rgba(251,191,36,0.04); }
-  td { padding: 10px 12px; text-align: right; color: var(--muted); }
+  td { padding: 8px 10px; text-align: right; color: var(--muted); white-space: nowrap; }
   td:first-child { text-align: left; color: var(--text); font-family: var(--body); }
   td.baseline { color: var(--gold); font-weight: 600; font-family: var(--body); }
   td.up { color: var(--green); }
@@ -99,7 +99,7 @@
 
   .table-wrap { overflow-x: auto; margin-bottom: 40px; }
   .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 40px; }
-  @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
 
   .loading { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 80px 0; color: var(--muted); }
   .spinner { width: 40px; height: 40px; border-radius: 50%; border: 3px solid var(--navy3); border-top-color: var(--gold); animation: spin 0.8s linear infinite; }
@@ -113,10 +113,10 @@
   }
   .banner-left .abbr { font-family: var(--header); font-weight: 800; font-size: 2.2rem; letter-spacing: -0.03em; }
   .banner-left .name { font-family: var(--header); font-weight: 600; font-size: 1rem; color: var(--text); margin-top: 2px; }
-  .banner-stats { display: flex; gap: 28px; flex-wrap: wrap; }
+  .banner-stats { display: flex; gap: 24px; flex-wrap: wrap; }
   .banner-stat { text-align: center; }
-  .banner-stat .val { font-family: var(--mono); font-size: 1.4rem; }
-  .banner-stat .lbl { font-family: var(--header); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--dim); margin-top: 2px; }
+  .banner-stat .val { font-family: var(--mono); font-size: 1.3rem; }
+  .banner-stat .lbl { font-family: var(--header); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--dim); margin-top: 2px; }
 
   .gamelog-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
   .gamelog-controls select {
@@ -146,6 +146,10 @@
   .page-btn:hover { border-color: var(--gold); color: var(--gold); }
   .page-btn:disabled { opacity: 0.3; cursor: default; }
   .page-info { font-family: var(--mono); font-size: 0.75rem; color: var(--dim); }
+
+  .stat-section { margin-bottom: 40px; }
+  .stat-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .stat-compare-label { font-family: var(--header); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dim); text-align: center; padding: 4px; }
 </style>
 </head>
 <body>
@@ -156,8 +160,8 @@
     <div class="logo">
       <div class="logo-icon">🏀</div>
       <div>
-        <h1>NBA <span>3-Point</span> Analyzer</h1>
-        <div style="font-size:0.72rem;color:var(--dim);margin-top:2px;">Fatigue & Travel Impact on Shooting</div>
+        <h1>NBA <span>Analytics</span></h1>
+        <div style="font-size:0.72rem;color:var(--dim);margin-top:2px;">Fatigue & Travel Impact on Performance</div>
       </div>
     </div>
     <div class="live"><strong>● LIVE</strong><br>Auto-updated nightly</div>
@@ -260,59 +264,66 @@ function avg(arr) {
   return v.length ? v.reduce((a,b)=>a+b,0)/v.length : 0;
 }
 function r1(x) { return Math.round(x*10)/10; }
+function r2(x) { return Math.round(x*100)/100; }
+function fmt(x, dec=1) { return x != null ? r1(x) : '—'; }
 
 function getTeamGames(team) {
   return allGames.filter(g => g.home_team === team || g.away_team === team);
 }
 
-function getThreePct(games, team) {
-  const pcts = [];
-  for (const g of games) {
-    if (!team) {
-      if (g.home_three_pct != null) pcts.push(g.home_three_pct);
-      if (g.away_three_pct != null) pcts.push(g.away_three_pct);
-    } else if (g.home_team === team && g.home_three_pct != null) {
-      pcts.push(g.home_three_pct);
-    } else if (g.away_team === team && g.away_three_pct != null) {
-      pcts.push(g.away_three_pct);
-    }
-  }
-  return r1(avg(pcts));
+function getMyStats(g, team) {
+  const isHome = g.home_team === team;
+  return {
+    pts: isHome ? g.home_points : g.away_points,
+    opp_pts: isHome ? g.away_points : g.home_points,
+    two_made: isHome ? g.home_two_made : g.away_two_made,
+    three_made: isHome ? g.home_three_made : g.away_three_made,
+    two_pct: isHome ? g.home_two_pct : g.away_two_pct,
+    three_pct: isHome ? g.home_three_pct : g.away_three_pct,
+    ast: isHome ? g.home_assists : g.away_assists,
+    tov: isHome ? g.home_turnovers : g.away_turnovers,
+    stl: isHome ? g.home_steals : g.away_steals,
+    blk: isHome ? g.home_blocks : g.away_blocks,
+    oreb: isHome ? g.home_off_rebounds : g.away_off_rebounds,
+    dreb: isHome ? g.home_def_rebounds : g.away_def_rebounds,
+    treb: isHome ? g.home_total_rebounds : g.away_total_rebounds,
+  };
 }
 
-// rest_days in DB = days since last game
-// B2B = rest_days of 1 (played yesterday, 0 days off)
-// 1 day rest = rest_days of 2 (1 day off between games)
-// 2+ days rest = rest_days of 3+ (2 or more days off between games)
+function computeAvgStats(games, team) {
+  const fields = ['pts','opp_pts','two_made','three_made','two_pct','three_pct','ast','tov','stl','blk','oreb','dreb','treb'];
+  const sums = {};
+  const counts = {};
+  fields.forEach(f => { sums[f] = 0; counts[f] = 0; });
+
+  for (const g of games) {
+    const s = getMyStats(g, team);
+    fields.forEach(f => {
+      if (s[f] != null) { sums[f] += s[f]; counts[f]++; }
+    });
+  }
+
+  const result = {};
+  fields.forEach(f => { result[f] = counts[f] > 0 ? r1(sums[f]/counts[f]) : null; });
+  return result;
+}
+
 function getRestDays(g, team) {
   return g.home_team === team ? g.home_rest_days : g.away_rest_days;
 }
 
-function isB2B(g, team) {
-  return g.home_team === team ? g.home_b2b : g.away_b2b;
-}
-
-function getB2B(games, team, b2b) {
-  return games.filter(g => isB2B(g, team) === b2b);
-}
-
+function isB2B(g, team) { return g.home_team === team ? g.home_b2b : g.away_b2b; }
 function getTz(games, tz) { return games.filter(g => g.tz_difference === tz); }
+function isConf(g, team) { return CONF[g.home_team] === CONF[g.away_team]; }
+function isDivision(g, team) { return DIVISION[g.home_team] === DIVISION[g.away_team]; }
+function getOpp(g, team) { return g.home_team === team ? g.away_team : g.home_team; }
 
-function isConf(g, team) {
-  return CONF[g.home_team] === CONF[g.away_team];
-}
-
-function isDivision(g, team) {
-  return DIVISION[g.home_team] === DIVISION[g.away_team];
-}
-
-function getOpp(g, team) {
-  return g.home_team === team ? g.away_team : g.home_team;
-}
-
-function colorClass(val, base) {
-  if (val > base + 0.3) return 'up';
-  if (val < base - 0.3) return 'down';
+function colorClass(val, base, lowerBetter=false) {
+  if (val == null || base == null) return '';
+  const better = lowerBetter ? val < base - 0.2 : val > base + 0.2;
+  const worse = lowerBetter ? val > base + 0.2 : val < base - 0.2;
+  if (better) return 'up';
+  if (worse) return 'down';
   return '';
 }
 
@@ -334,108 +345,134 @@ function applyFilter(games, team) {
   }
 }
 
+function statRow(label, val, base, lowerBetter=false, suffix='') {
+  const cc = colorClass(val, base, lowerBetter);
+  const diff = val != null && base != null ? r1(val - base) : null;
+  const diffStr = diff != null ? (diff >= 0 ? '+'+diff : ''+diff) : '—';
+  return `<tr>
+    <td>${label}</td>
+    <td>${val != null ? val+suffix : '—'}</td>
+    <td class="${cc}">${diff != null ? diffStr+suffix : '—'}</td>
+  </tr>`;
+}
+
+function renderScenarioTable(scenarios) {
+  const fields = [
+    {key:'pts', label:'Points', lower:false},
+    {key:'opp_pts', label:'Opp Points', lower:true},
+    {key:'three_pct', label:'3P%', lower:false, suffix:'%'},
+    {key:'two_pct', label:'2P%', lower:false, suffix:'%'},
+    {key:'three_made', label:'3PM', lower:false},
+    {key:'two_made', label:'2PM', lower:false},
+    {key:'ast', label:'Assists', lower:false},
+    {key:'tov', label:'Turnovers', lower:true},
+    {key:'stl', label:'Steals', lower:false},
+    {key:'blk', label:'Blocks', lower:false},
+    {key:'oreb', label:'Off Reb', lower:false},
+    {key:'dreb', label:'Def Reb', lower:false},
+    {key:'treb', label:'Total Reb', lower:false},
+  ];
+
+  const base = scenarios[0].stats;
+
+  return `<div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align:left">Stat</th>
+          ${scenarios.map(s => `<th>${s.label}<br><span style="color:var(--dim);font-weight:400">${s.games}g</span></th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>
+        ${fields.map(f => `<tr>
+          <td style="font-family:var(--body)">${f.label}</td>
+          ${scenarios.map((s,i) => {
+            const val = s.stats[f.key];
+            const cc = i === 0 ? '' : colorClass(val, base[f.key], f.lower);
+            return `<td class="${cc}">${val != null ? val+(f.suffix||'') : '—'}</td>`;
+          }).join('')}
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
 function renderGlobalStats() {
   const games = allGames;
-  const baseline = getThreePct(games, null);
-  const b2bAll = games.filter(g => g.home_b2b || g.away_b2b);
-  const restedAll = games.filter(g => !g.home_b2b && !g.away_b2b);
-  const b2bPct = getThreePct(b2bAll, null);
-  const restedPct = getThreePct(restedAll, null);
-  const tz3 = getThreePct(getTz(games,3), null);
+  const baseline = computeAvgStats(games, null);
 
   const teamRows = TEAMS.map(team => {
     const tg = getTeamGames(team);
-    const all = getThreePct(tg, team);
-    const b2b = getThreePct(tg.filter(g=>getRestDays(g,team)===1), team);
-    const rested = getThreePct(tg.filter(g=>getRestDays(g,team)>=3), team);
-    const tz2plus = getThreePct(tg.filter(g=>g.tz_difference>=2), team);
-    return { team, all, b2b, rested, tz2plus };
-  }).sort((a,b) => b.all - a.all);
+    const all = computeAvgStats(tg, team);
+    const b2b = computeAvgStats(tg.filter(g=>getRestDays(g,team)===1), team);
+    const tz2plus = computeAvgStats(tg.filter(g=>g.tz_difference>=2), team);
+    return { team, all, b2b, tz2plus, games: tg.length };
+  }).sort((a,b) => (b.all.three_pct||0) - (a.all.three_pct||0));
 
   document.getElementById('app').innerHTML = `
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="label">League Baseline 3P%</div>
-        <div class="value">${baseline}%</div>
+        <div class="label">League Avg Points</div>
+        <div class="value">${baseline.pts}</div>
         <div class="sub">${games.length} games</div>
       </div>
       <div class="stat-card">
-        <div class="label">Back-to-Back 3P%</div>
-        <div class="value" style="color:${b2bPct<baseline?'var(--red)':'var(--green)'}">${b2bPct}%</div>
-        <div class="sub">${b2bAll.length} B2B games · ${b2bPct<baseline?'▼':'▲'} ${Math.abs(r1(b2bPct-baseline))}pp</div>
+        <div class="label">League Avg 3P%</div>
+        <div class="value">${baseline.three_pct}%</div>
+        <div class="sub">baseline</div>
       </div>
       <div class="stat-card">
-        <div class="label">Rested (2+ days off) 3P%</div>
-        <div class="value" style="color:${restedPct>=baseline?'var(--green)':'var(--red)'}">${restedPct}%</div>
-        <div class="sub">${restedAll.length} rested games</div>
+        <div class="label">B2B 3P%</div>
+        <div class="value" style="color:${(computeAvgStats(games.filter(g=>g.home_b2b||g.away_b2b),null).three_pct||0)<(baseline.three_pct||0)?'var(--red)':'var(--green)'}">${computeAvgStats(games.filter(g=>g.home_b2b||g.away_b2b),null).three_pct}%</div>
+        <div class="sub">${games.filter(g=>g.home_b2b||g.away_b2b).length} B2B games</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">League Avg Assists</div>
+        <div class="value">${baseline.ast}</div>
+        <div class="sub">per game</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">League Avg Turnovers</div>
+        <div class="value">${baseline.tov}</div>
+        <div class="sub">per game</div>
       </div>
       <div class="stat-card">
         <div class="label">3-Zone Travel 3P%</div>
-        <div class="value" style="color:${tz3<baseline?'var(--red)':'var(--green)'}">${tz3}%</div>
-        <div class="sub">${getTz(games,3).length} games · max fatigue</div>
+        <div class="value" style="color:${(computeAvgStats(getTz(games,3),null).three_pct||0)<(baseline.three_pct||0)?'var(--red)':'var(--green)'}">${computeAvgStats(getTz(games,3),null).three_pct}%</div>
+        <div class="sub">${getTz(games,3).length} games</div>
       </div>
     </div>
 
-    <div class="two-col">
-      <div>
-        <div class="section-title">Rest Days 3P%</div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Scenario</th><th>Games</th><th>3P%</th><th>vs Baseline</th></tr></thead>
-            <tbody>
-              <tr><td class="baseline">All Games</td><td>${games.length}</td><td>${baseline}%</td><td>—</td></tr>
-              <tr><td>Back-to-Back (0 days off)</td><td>${b2bAll.length}</td>
-                <td class="${colorClass(b2bPct,baseline)}">${b2bPct}%</td>
-                <td class="${colorClass(b2bPct,baseline)}">${b2bPct>=baseline?'+':''}${r1(b2bPct-baseline)}pp</td></tr>
-              <tr><td>1 Day Off</td>
-                <td>${games.filter(g=>g.home_rest_days===2||g.away_rest_days===2).length}</td>
-                <td class="${colorClass(getThreePct(games.filter(g=>g.home_rest_days===2||g.away_rest_days===2),null),baseline)}">${getThreePct(games.filter(g=>g.home_rest_days===2||g.away_rest_days===2),null)}%</td>
-                <td class="${colorClass(getThreePct(games.filter(g=>g.home_rest_days===2||g.away_rest_days===2),null),baseline)}">${getThreePct(games.filter(g=>g.home_rest_days===2||g.away_rest_days===2),null)>=baseline?'+':''}${r1(getThreePct(games.filter(g=>g.home_rest_days===2||g.away_rest_days===2),null)-baseline)}pp</td></tr>
-              <tr><td>2+ Days Off</td><td>${restedAll.length}</td>
-                <td class="${colorClass(restedPct,baseline)}">${restedPct}%</td>
-                <td class="${colorClass(restedPct,baseline)}">${restedPct>=baseline?'+':''}${r1(restedPct-baseline)}pp</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div>
-        <div class="section-title">Timezone Crossings 3P%</div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Scenario</th><th>Games</th><th>3P%</th><th>vs Baseline</th></tr></thead>
-            <tbody>
-              <tr><td class="baseline">All Games</td><td>${games.length}</td><td>${baseline}%</td><td>—</td></tr>
-              ${[0,1,2,3].map(tz => {
-                const tzG = getTz(games,tz);
-                const pct = getThreePct(tzG,null);
-                return `<tr><td>${tz===0?'Same Zone':tz+' Zone'+(tz>1?'s':'')}</td><td>${tzG.length}</td>
-                  <td class="${colorClass(pct,baseline)}">${pct}%</td>
-                  <td class="${colorClass(pct,baseline)}">${pct>=baseline?'+':''}${r1(pct-baseline)}pp</td></tr>`;
-              }).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <div class="section-title">All Teams — 3P% Breakdown</div>
+    <div class="section-title">All Teams — Full Stat Breakdown</div>
     <div class="table-wrap">
       <table>
         <thead><tr>
-          <th>#</th><th style="text-align:left">Team</th>
-          <th>Overall</th><th>2+ Days Off</th><th>B2B</th><th>B2B Diff</th><th>2+TZ</th><th>2+TZ Diff</th>
+          <th>#</th><th style="text-align:left">Team</th><th>G</th>
+          <th>PTS</th><th>OPP</th><th>3P%</th><th>2P%</th><th>3PM</th><th>2PM</th>
+          <th>AST</th><th>TOV</th><th>STL</th><th>BLK</th><th>OREB</th><th>DREB</th><th>REB</th>
+          <th>B2B 3P%</th><th>2+TZ 3P%</th>
         </tr></thead>
         <tbody>
           ${teamRows.map((r,i) => `<tr>
             <td style="color:var(--dim);font-size:0.7rem">#${i+1}</td>
             <td style="text-align:left;font-family:var(--body);color:var(--text);cursor:pointer;text-decoration:underline;text-decoration-color:var(--dim)"
               onclick="selectTeam('${r.team}')">${ABBR[r.team]}</td>
-            <td>${r.all}%</td>
-            <td class="${colorClass(r.rested,r.all)}">${r.rested}%</td>
-            <td class="${colorClass(r.b2b,r.all)}">${r.b2b}%</td>
-            <td class="${colorClass(r.b2b,r.all)}">${r.b2b>=r.all?'+':''}${r1(r.b2b-r.all)}pp</td>
-            <td class="${colorClass(r.tz2plus,r.all)}">${r.tz2plus}%</td>
-            <td class="${colorClass(r.tz2plus,r.all)}">${r.tz2plus>=r.all?'+':''}${r1(r.tz2plus-r.all)}pp</td>
+            <td>${r.games}</td>
+            <td>${r.all.pts??'—'}</td>
+            <td>${r.all.opp_pts??'—'}</td>
+            <td>${r.all.three_pct??'—'}%</td>
+            <td>${r.all.two_pct??'—'}%</td>
+            <td>${r.all.three_made??'—'}</td>
+            <td>${r.all.two_made??'—'}</td>
+            <td>${r.all.ast??'—'}</td>
+            <td>${r.all.tov??'—'}</td>
+            <td>${r.all.stl??'—'}</td>
+            <td>${r.all.blk??'—'}</td>
+            <td>${r.all.oreb??'—'}</td>
+            <td>${r.all.dreb??'—'}</td>
+            <td>${r.all.treb??'—'}</td>
+            <td class="${colorClass(r.b2b.three_pct,r.all.three_pct)}">${r.b2b.three_pct??'—'}%</td>
+            <td class="${colorClass(r.tz2plus.three_pct,r.all.three_pct)}">${r.tz2plus.three_pct??'—'}%</td>
           </tr>`).join('')}
         </tbody>
       </table>
@@ -445,17 +482,17 @@ function renderGlobalStats() {
 
 function renderTeamView(team) {
   const tg = getTeamGames(team).sort((a,b) => b.game_date.localeCompare(a.game_date));
-  const baseline = getThreePct(tg, team);
-  const b2b = getThreePct(tg.filter(g=>getRestDays(g,team)===1), team);
-  const rest1 = getThreePct(tg.filter(g=>getRestDays(g,team)===2), team);
-  const rest2plus = getThreePct(tg.filter(g=>getRestDays(g,team)>=3), team);
-  const tz0 = getThreePct(getTz(tg,0), team);
-  const tz1 = getThreePct(getTz(tg,1), team);
-  const tz2 = getThreePct(getTz(tg,2), team);
-  const tz3 = getThreePct(getTz(tg,3), team);
-  const conf = getThreePct(tg.filter(g=>isConf(g,team)), team);
-  const nonconf = getThreePct(tg.filter(g=>!isConf(g,team)), team);
-  const divGames = getThreePct(tg.filter(g=>isDivision(g,team)), team);
+  const baseline = computeAvgStats(tg, team);
+  const b2b = computeAvgStats(tg.filter(g=>getRestDays(g,team)===1), team);
+  const rest1 = computeAvgStats(tg.filter(g=>getRestDays(g,team)===2), team);
+  const rest2plus = computeAvgStats(tg.filter(g=>getRestDays(g,team)>=3), team);
+  const tz0 = computeAvgStats(getTz(tg,0), team);
+  const tz1 = computeAvgStats(getTz(tg,1), team);
+  const tz2 = computeAvgStats(getTz(tg,2), team);
+  const tz3 = computeAvgStats(getTz(tg,3), team);
+  const conf = computeAvgStats(tg.filter(g=>isConf(g,team)), team);
+  const nonconf = computeAvgStats(tg.filter(g=>!isConf(g,team)), team);
+  const divGames = computeAvgStats(tg.filter(g=>isDivision(g,team)), team);
 
   const wins = tg.filter(g=>(g.home_team===team&&g.home_win==='W')||(g.away_team===team&&g.home_win==='L')).length;
   const losses = tg.length - wins;
@@ -468,71 +505,54 @@ function renderTeamView(team) {
   const safePage = Math.min(glPage, Math.max(0, totalPages-1));
   const paginated = filtered.slice(safePage*GL_PER_PAGE, (safePage+1)*GL_PER_PAGE);
 
+  const restScenarios = [
+    {label:'All Games', games:tg.length, stats:baseline},
+    {label:'B2B (0 off)', games:tg.filter(g=>getRestDays(g,team)===1).length, stats:b2b},
+    {label:'1 Day Off', games:tg.filter(g=>getRestDays(g,team)===2).length, stats:rest1},
+    {label:'2+ Days Off', games:tg.filter(g=>getRestDays(g,team)>=3).length, stats:rest2plus},
+  ];
+
+  const tzScenarios = [
+    {label:'All Games', games:tg.length, stats:baseline},
+    {label:'Same Zone', games:getTz(tg,0).length, stats:tz0},
+    {label:'1 Zone', games:getTz(tg,1).length, stats:tz1},
+    {label:'2 Zones', games:getTz(tg,2).length, stats:tz2},
+    {label:'3 Zones', games:getTz(tg,3).length, stats:tz3},
+  ];
+
+  const confScenarios = [
+    {label:'All Games', games:tg.length, stats:baseline},
+    {label:'Conference', games:tg.filter(g=>isConf(g,team)).length, stats:conf},
+    {label:'Non-Conf', games:tg.filter(g=>!isConf(g,team)).length, stats:nonconf},
+    {label:'Division', games:tg.filter(g=>isDivision(g,team)).length, stats:divGames},
+  ];
+
   document.getElementById('app').innerHTML = `
     <div class="team-banner" style="background:linear-gradient(135deg,${colors[0]}22,${colors[1]}11,var(--navy2));border:1px solid ${colors[0]}44;">
       <div class="banner-left">
         <div class="abbr" style="color:${colors[1]}">${ABBR[team]}</div>
-        <div class="name">${team}</div>
+        <div class="name">${team} · ${CONF[team]} · ${myDiv}</div>
       </div>
       <div class="banner-stats">
         <div class="banner-stat"><div class="val" style="color:var(--gold)">${tg.length}</div><div class="lbl">Games</div></div>
         <div class="banner-stat"><div class="val" style="color:var(--gold)">${wins}-${losses}</div><div class="lbl">Record</div></div>
         <div class="banner-stat"><div class="val" style="color:var(--gold)">${winPct}%</div><div class="lbl">Win %</div></div>
-        <div class="banner-stat"><div class="val" style="color:var(--gold)">${baseline}%</div><div class="lbl">3P%</div></div>
-        <div class="banner-stat"><div class="val" style="color:${b2b<baseline?'var(--red)':'var(--green)'}">${b2b}%</div><div class="lbl">B2B 3P%</div></div>
-        <div class="banner-stat"><div class="val" style="color:${tz3<baseline?'var(--red)':'var(--green)'}">${tz3}%</div><div class="lbl">3-TZ 3P%</div></div>
+        <div class="banner-stat"><div class="val" style="color:var(--gold)">${baseline.pts}</div><div class="lbl">Avg PTS</div></div>
+        <div class="banner-stat"><div class="val" style="color:var(--gold)">${baseline.three_pct}%</div><div class="lbl">3P%</div></div>
+        <div class="banner-stat"><div class="val" style="color:${(b2b.three_pct||0)<(baseline.three_pct||0)?'var(--red)':'var(--green)'}">${b2b.three_pct}%</div><div class="lbl">B2B 3P%</div></div>
+        <div class="banner-stat"><div class="val" style="color:var(--gold)">${baseline.ast}</div><div class="lbl">Avg AST</div></div>
+        <div class="banner-stat"><div class="val" style="color:var(--gold)">${baseline.tov}</div><div class="lbl">Avg TOV</div></div>
       </div>
     </div>
 
-    <div class="two-col">
-      <div>
-        <div class="section-title">Breakdown</div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Scenario</th><th>Games</th><th>3P%</th><th>vs Baseline</th></tr></thead>
-            <tbody>
-              <tr><td class="baseline">All Games</td><td>${tg.length}</td><td>${baseline}%</td><td>—</td></tr>
-              <tr><td>Back-to-Back (0 days off)</td><td>${tg.filter(g=>getRestDays(g,team)===1).length}</td>
-                <td class="${colorClass(b2b,baseline)}">${b2b}%</td>
-                <td class="${colorClass(b2b,baseline)}">${b2b>=baseline?'+':''}${r1(b2b-baseline)}pp</td></tr>
-              <tr><td>1 Day Off</td><td>${tg.filter(g=>getRestDays(g,team)===2).length}</td>
-                <td class="${colorClass(rest1,baseline)}">${rest1}%</td>
-                <td class="${colorClass(rest1,baseline)}">${rest1>=baseline?'+':''}${r1(rest1-baseline)}pp</td></tr>
-              <tr><td>2+ Days Off</td><td>${tg.filter(g=>getRestDays(g,team)>=3).length}</td>
-                <td class="${colorClass(rest2plus,baseline)}">${rest2plus}%</td>
-                <td class="${colorClass(rest2plus,baseline)}">${rest2plus>=baseline?'+':''}${r1(rest2plus-baseline)}pp</td></tr>
-              <tr><td>Conference Games</td><td>${tg.filter(g=>isConf(g,team)).length}</td>
-                <td class="${colorClass(conf,baseline)}">${conf}%</td>
-                <td class="${colorClass(conf,baseline)}">${conf>=baseline?'+':''}${r1(conf-baseline)}pp</td></tr>
-              <tr><td>Non-Conference</td><td>${tg.filter(g=>!isConf(g,team)).length}</td>
-                <td class="${colorClass(nonconf,baseline)}">${nonconf}%</td>
-                <td class="${colorClass(nonconf,baseline)}">${nonconf>=baseline?'+':''}${r1(nonconf-baseline)}pp</td></tr>
-              <tr><td>vs Division (${myDiv})</td><td>${tg.filter(g=>isDivision(g,team)).length}</td>
-                <td class="${colorClass(divGames,baseline)}">${divGames}%</td>
-                <td class="${colorClass(divGames,baseline)}">${divGames>=baseline?'+':''}${r1(divGames-baseline)}pp</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div>
-        <div class="section-title">Timezone Crossings</div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Scenario</th><th>Games</th><th>3P%</th><th>vs Baseline</th></tr></thead>
-            <tbody>
-              <tr><td class="baseline">All Games</td><td>${tg.length}</td><td>${baseline}%</td><td>—</td></tr>
-              ${[[0,'Same Zone'],[1,'1 Zone'],[2,'2 Zones'],[3,'3 Zones']].map(([tz,lbl]) => {
-                const tzG = getTz(tg,tz);
-                const pct = [tz0,tz1,tz2,tz3][tz];
-                return `<tr><td>${lbl}</td><td>${tzG.length}</td>
-                  <td class="${colorClass(pct,baseline)}">${pct}%</td>
-                  <td class="${colorClass(pct,baseline)}">${pct>=baseline?'+':''}${r1(pct-baseline)}pp</td></tr>`;
-              }).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    <div class="section-title">Rest & Fatigue — All Stats vs Baseline</div>
+    ${renderScenarioTable(restScenarios)}
+
+    <div class="section-title">Timezone Crossings — All Stats vs Baseline</div>
+    ${renderScenarioTable(tzScenarios)}
+
+    <div class="section-title">Conference & Schedule — All Stats vs Baseline</div>
+    ${renderScenarioTable(confScenarios)}
 
     <div class="section-title">Game Log</div>
     <div class="gamelog-controls">
@@ -562,8 +582,27 @@ function renderTeamView(team) {
     <div class="table-wrap">
       <table>
         <thead><tr>
-          <th>Date</th><th style="text-align:left">Opponent</th><th>H/A</th>
-          <th>Score</th><th>Result</th><th>3P%</th><th>TZ</th><th>Days Off</th><th>Rest</th><th>Conf</th>
+          <th>Date</th>
+          <th style="text-align:left">Opp</th>
+          <th>H/A</th>
+          <th>Score</th>
+          <th>Res</th>
+          <th>PTS</th>
+          <th>OPP</th>
+          <th>3P%</th>
+          <th>2P%</th>
+          <th>3PM</th>
+          <th>2PM</th>
+          <th>AST</th>
+          <th>TOV</th>
+          <th>STL</th>
+          <th>BLK</th>
+          <th>OREB</th>
+          <th>DREB</th>
+          <th>REB</th>
+          <th>TZ</th>
+          <th>Off</th>
+          <th>Conf</th>
         </tr></thead>
         <tbody>
           ${paginated.map(g => {
@@ -572,25 +611,35 @@ function renderTeamView(team) {
             const myScore = isHome ? g.home_score : g.away_score;
             const oppScore = isHome ? g.away_score : g.home_score;
             const won = (isHome&&g.home_win==='W')||(!isHome&&g.home_win==='L');
-            const myPct = isHome ? g.home_three_pct : g.away_three_pct;
+            const s = getMyStats(g, team);
             const myRestDays = getRestDays(g, team);
             const daysOff = myRestDays - 1;
             const confGame = isConf(g, team);
             const divGame = isDivision(g, team);
             const oppConf = CONF[opp];
-            let restLabel = daysOff <= 0 ? '<span class="gl-b2b">B2B</span>' : daysOff + 'd off';
-            let restColor = daysOff <= 0 ? 'var(--red)' : daysOff === 1 ? 'var(--muted)' : 'var(--green)';
+            const restColor = daysOff <= 0 ? 'var(--red)' : daysOff === 1 ? 'var(--muted)' : 'var(--green)';
             return `<tr>
               <td style="color:var(--dim)">${g.game_date}</td>
-              <td style="text-align:left">${ABBR[opp]||opp} <span style="color:var(--dim);font-size:0.68rem">${oppConf}</span></td>
-              <td style="color:var(--dim)">${isHome?'HOME':'AWAY'}</td>
+              <td style="text-align:left">${ABBR[opp]||opp} <span style="color:var(--dim);font-size:0.65rem">${oppConf}</span></td>
+              <td style="color:var(--dim);font-size:0.7rem">${isHome?'HM':'AW'}</td>
               <td>${myScore}-${oppScore}</td>
               <td class="${won?'gl-win':'gl-loss'}">${won?'W':'L'}</td>
-              <td class="${myPct!=null?(myPct>=baseline?'up':'down'):''}">${myPct!=null?myPct+'%':'—'}</td>
+              <td class="${colorClass(s.pts,baseline.pts)}">${s.pts??'—'}</td>
+              <td class="${colorClass(s.opp_pts,baseline.opp_pts,true)}">${s.opp_pts??'—'}</td>
+              <td class="${colorClass(s.three_pct,baseline.three_pct)}">${s.three_pct!=null?s.three_pct+'%':'—'}</td>
+              <td class="${colorClass(s.two_pct,baseline.two_pct)}">${s.two_pct!=null?s.two_pct+'%':'—'}</td>
+              <td>${s.three_made??'—'}</td>
+              <td>${s.two_made??'—'}</td>
+              <td class="${colorClass(s.ast,baseline.ast)}">${s.ast??'—'}</td>
+              <td class="${colorClass(s.tov,baseline.tov,true)}">${s.tov??'—'}</td>
+              <td class="${colorClass(s.stl,baseline.stl)}">${s.stl??'—'}</td>
+              <td class="${colorClass(s.blk,baseline.blk)}">${s.blk??'—'}</td>
+              <td class="${colorClass(s.oreb,baseline.oreb)}">${s.oreb??'—'}</td>
+              <td class="${colorClass(s.dreb,baseline.dreb)}">${s.dreb??'—'}</td>
+              <td class="${colorClass(s.treb,baseline.treb)}">${s.treb??'—'}</td>
               <td class="${g.tz_difference>=2?'gl-tz':''}">${g.tz_difference}</td>
-              <td style="color:${restColor}">${restLabel}</td>
-              <td style="color:var(--dim)">${myRestDays}d since last</td>
-              <td style="color:var(--dim)">${divGame?'DIV':confGame?'CONF':'NON'}</td>
+              <td style="color:${restColor}">${daysOff<=0?'B2B':daysOff+'d'}</td>
+              <td style="color:var(--dim);font-size:0.7rem">${divGame?'DIV':confGame?'CONF':'NON'}</td>
             </tr>`;
           }).join('')}
         </tbody>
@@ -643,7 +692,7 @@ async function loadData() {
   while (true) {
     const { data, error } = await sb
       .from('NBA_Games')
-      .select('home_team,away_team,home_conference,away_conference,home_three_pct,away_three_pct,home_b2b,away_b2b,home_rest_days,away_rest_days,tz_difference,travel_direction,home_score,away_score,home_win,game_date,point_diff')
+      .select('*')
       .range(from, from+499);
     if (error || !data || !data.length) break;
     all = [...all, ...data];
