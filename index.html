@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NBA 3-Point Shooting Analyzer</title>
+<title>NBA 3-Point Analyzer</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
@@ -28,34 +28,25 @@
     --mono: 'DM Mono', monospace;
   }
 
-  body {
-    font-family: var(--body);
-    background: var(--navy);
-    color: var(--text);
-    min-height: 100vh;
-  }
+  body { font-family: var(--body); background: var(--navy); color: var(--text); min-height: 100vh; }
 
   .bg-grid {
     position: fixed; inset: 0;
     background-image: linear-gradient(rgba(13,36,80,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(13,36,80,0.3) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none; z-index: 0;
+    background-size: 40px 40px; pointer-events: none; z-index: 0;
   }
-
   .bg-radial {
     position: fixed; inset: 0;
     background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(19,46,104,0.5), transparent);
     pointer-events: none; z-index: 0;
   }
 
-  .content { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 20px 60px; }
+  .content { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; padding: 0 20px 80px; }
 
   header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 24px 0; margin-bottom: 32px;
-    border-bottom: 1px solid var(--border);
+    padding: 24px 0; margin-bottom: 32px; border-bottom: 1px solid var(--border);
   }
-
   .logo { display: flex; align-items: center; gap: 12px; }
   .logo-icon {
     width: 36px; height: 36px; border-radius: 8px;
@@ -73,15 +64,11 @@
   .team-btn {
     font-family: var(--mono); font-size: 0.72rem; padding: 5px 10px;
     border-radius: 6px; border: 1px solid var(--border);
-    background: var(--glass); color: var(--dim); cursor: pointer;
-    transition: all 0.15s;
+    background: var(--glass); color: var(--dim); cursor: pointer; transition: all 0.15s;
   }
   .team-btn:hover { border-color: var(--gold); color: var(--gold); }
   .team-btn.active { background: rgba(251,191,36,0.12); border-color: var(--gold); color: var(--gold); }
-  .team-btn.all-btn {
-    font-family: var(--header); font-weight: 600; font-size: 0.75rem;
-    padding: 5px 14px; background: var(--gold2); border-color: var(--gold2); color: #000;
-  }
+  .team-btn.all-btn { font-family: var(--header); font-weight: 600; font-size: 0.75rem; padding: 5px 14px; background: var(--gold2); border-color: var(--gold2); color: #000; }
   .team-btn.all-btn.inactive { background: var(--glass); border-color: var(--border); color: var(--muted); }
 
   .section-title {
@@ -92,10 +79,7 @@
   }
 
   .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 40px; }
-  .stat-card {
-    background: var(--glass); border: 1px solid var(--border);
-    border-radius: 12px; padding: 16px 20px;
-  }
+  .stat-card { background: var(--glass); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; }
   .stat-card .label { font-family: var(--header); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--dim); margin-bottom: 6px; }
   .stat-card .value { font-family: var(--mono); font-size: 1.6rem; color: var(--gold); }
   .stat-card .sub { font-family: var(--body); font-size: 0.7rem; color: var(--dim); margin-top: 4px; }
@@ -104,7 +88,8 @@
   thead tr { border-bottom: 1px solid var(--border); }
   th { padding: 8px 12px; text-align: right; color: var(--gold); font-family: var(--header); font-weight: 700; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.07em; }
   th:first-child { text-align: left; }
-  tbody tr { border-bottom: 1px solid rgba(255,255,255,0.03); }
+  tbody tr { border-bottom: 1px solid rgba(255,255,255,0.03); transition: background 0.1s; }
+  tbody tr:hover { background: rgba(255,255,255,0.03); }
   tbody tr:first-child { background: rgba(251,191,36,0.04); }
   td { padding: 10px 12px; text-align: right; color: var(--muted); }
   td:first-child { text-align: left; color: var(--text); font-family: var(--body); }
@@ -112,22 +97,58 @@
   td.up { color: var(--green); }
   td.down { color: var(--red); }
 
-  .loading {
-    display: flex; flex-direction: column; align-items: center;
-    gap: 16px; padding: 80px 0; color: var(--muted);
-  }
-  .spinner {
-    width: 40px; height: 40px; border-radius: 50%;
-    border: 3px solid var(--navy3); border-top-color: var(--gold);
-    animation: spin 0.8s linear infinite;
-  }
+  .table-wrap { overflow-x: auto; margin-bottom: 40px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 40px; }
+  @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+
+  .loading { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 80px 0; color: var(--muted); }
+  .spinner { width: 40px; height: 40px; border-radius: 50%; border: 3px solid var(--navy3); border-top-color: var(--gold); animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-text { font-family: var(--header); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; }
 
-  .table-wrap { overflow-x: auto; margin-bottom: 40px; }
+  /* Team Banner */
+  .team-banner {
+    border-radius: 14px; padding: 24px 28px; margin-bottom: 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .banner-left .abbr { font-family: var(--header); font-weight: 800; font-size: 2.2rem; letter-spacing: -0.03em; }
+  .banner-left .name { font-family: var(--header); font-weight: 600; font-size: 1rem; color: var(--text); margin-top: 2px; }
+  .banner-stats { display: flex; gap: 28px; flex-wrap: wrap; }
+  .banner-stat { text-align: center; }
+  .banner-stat .val { font-family: var(--mono); font-size: 1.4rem; }
+  .banner-stat .lbl { font-family: var(--header); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--dim); margin-top: 2px; }
 
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 40px; }
-  @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+  /* Game Log */
+  .gamelog-controls {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .gamelog-controls select {
+    font-family: var(--header); font-weight: 600; font-size: 0.8rem;
+    background: var(--glass); border: 1px solid var(--border);
+    color: var(--text); padding: 8px 14px; border-radius: 8px; cursor: pointer;
+    outline: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238ba0c4' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
+    padding-right: 30px;
+  }
+  .gamelog-controls select:focus { border-color: var(--gold); }
+  .gamelog-count { font-family: var(--mono); font-size: 0.75rem; color: var(--dim); margin-left: auto; }
+
+  .gl-win { color: var(--green); font-weight: 600; }
+  .gl-loss { color: var(--red); font-weight: 600; }
+  .gl-b2b { color: var(--red); font-size: 0.65rem; font-family: var(--header); font-weight: 700; letter-spacing: 0.05em; }
+  .gl-tz { color: var(--gold); }
+
+  .pagination { display: flex; align-items: center; gap: 10px; justify-content: center; margin-top: 16px; }
+  .page-btn {
+    font-family: var(--header); font-weight: 600; font-size: 0.75rem;
+    padding: 6px 16px; background: var(--glass); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--muted); cursor: pointer;
+  }
+  .page-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .page-btn:disabled { opacity: 0.3; cursor: default; }
+  .page-info { font-family: var(--mono); font-size: 0.75rem; color: var(--dim); }
 </style>
 </head>
 <body>
@@ -146,7 +167,7 @@
   </header>
 
   <div class="team-filter">
-    <div class="filter-label">Filter by Team</div>
+    <div class="filter-label">Select a Team</div>
     <div class="team-buttons" id="teamButtons"></div>
   </div>
 
@@ -189,19 +210,48 @@ const ABBR = {
   "Utah Jazz":"UTA","Washington Wizards":"WAS"
 };
 
+const COLORS = {
+  "Atlanta Hawks":["#E03A3E","#C1D32F"],"Boston Celtics":["#007A33","#BA9653"],
+  "Brooklyn Nets":["#1a1a1a","#FFFFFF"],"Charlotte Hornets":["#1D1160","#00788C"],
+  "Chicago Bulls":["#CE1141","#000000"],"Cleveland Cavaliers":["#860038","#FDBB30"],
+  "Dallas Mavericks":["#00538C","#002B5E"],"Denver Nuggets":["#0E2240","#FEC524"],
+  "Detroit Pistons":["#C8102E","#1D42BA"],"Golden State Warriors":["#1D428A","#FFC72C"],
+  "Houston Rockets":["#CE1141","#C4CED4"],"Indiana Pacers":["#002D62","#FDBB30"],
+  "LA Clippers":["#C8102E","#1D428A"],"Los Angeles Lakers":["#552583","#FDB927"],
+  "Memphis Grizzlies":["#5D76A9","#12173F"],"Miami Heat":["#98002E","#F9A01B"],
+  "Milwaukee Bucks":["#00471B","#EEE1C6"],"Minnesota Timberwolves":["#0C2340","#236192"],
+  "New Orleans Pelicans":["#0C2340","#C8102E"],"New York Knicks":["#006BB6","#F58426"],
+  "Oklahoma City Thunder":["#007AC1","#EF3B24"],"Orlando Magic":["#0077C0","#C4CED4"],
+  "Philadelphia 76ers":["#006BB6","#ED174C"],"Phoenix Suns":["#1D1160","#E56020"],
+  "Portland Trail Blazers":["#E03A3E","#000000"],"Sacramento Kings":["#5A2D81","#63727A"],
+  "San Antonio Spurs":["#C4CED4","#000000"],"Toronto Raptors":["#CE1141","#000000"],
+  "Utah Jazz":["#002B5C","#00471B"],"Washington Wizards":["#002B5C","#E31837"]
+};
+
+const CONF = {
+  "Atlanta Hawks":"East","Boston Celtics":"East","Brooklyn Nets":"East","Charlotte Hornets":"East",
+  "Chicago Bulls":"East","Cleveland Cavaliers":"East","Dallas Mavericks":"West","Denver Nuggets":"West",
+  "Detroit Pistons":"East","Golden State Warriors":"West","Houston Rockets":"West","Indiana Pacers":"East",
+  "LA Clippers":"West","Los Angeles Lakers":"West","Memphis Grizzlies":"West","Miami Heat":"East",
+  "Milwaukee Bucks":"East","Minnesota Timberwolves":"West","New Orleans Pelicans":"West","New York Knicks":"East",
+  "Oklahoma City Thunder":"West","Orlando Magic":"East","Philadelphia 76ers":"East","Phoenix Suns":"West",
+  "Portland Trail Blazers":"West","Sacramento Kings":"West","San Antonio Spurs":"West","Toronto Raptors":"East",
+  "Utah Jazz":"West","Washington Wizards":"East"
+};
+
 let allGames = [];
 let selectedTeam = null;
+let glFilter = 'all';
+let glPage = 0;
+const GL_PER_PAGE = 20;
 
 function avg(arr) {
-  const valid = arr.filter(x => x != null && !isNaN(x));
-  if (!valid.length) return 0;
-  return valid.reduce((a,b) => a+b, 0) / valid.length;
+  const v = arr.filter(x => x != null && !isNaN(x));
+  return v.length ? v.reduce((a,b)=>a+b,0)/v.length : 0;
 }
+function r1(x) { return Math.round(x*10)/10; }
 
-function round1(x) { return Math.round(x * 10) / 10; }
-
-function getGames(team) {
-  if (!team) return allGames;
+function getTeamGames(team) {
   return allGames.filter(g => g.home_team === team || g.away_team === team);
 }
 
@@ -217,20 +267,21 @@ function getThreePct(games, team) {
       pcts.push(g.away_three_pct);
     }
   }
-  return round1(avg(pcts));
+  return r1(avg(pcts));
 }
 
-function getB2BGames(games, team, b2b) {
-  return games.filter(g => {
-    if (!team) return b2b ? (g.home_b2b || g.away_b2b) : (!g.home_b2b && !g.away_b2b);
-    if (g.home_team === team) return b2b ? g.home_b2b : !g.home_b2b;
-    if (g.away_team === team) return b2b ? g.away_b2b : !g.away_b2b;
-    return false;
-  });
+function isB2B(g, team) {
+  return g.home_team === team ? g.home_b2b : g.away_b2b;
 }
 
-function getTzGames(games, tz) {
-  return games.filter(g => g.tz_difference === tz);
+function getB2B(games, team, b2b) {
+  return games.filter(g => isB2B(g, team) === b2b);
+}
+
+function getTz(games, tz) { return games.filter(g => g.tz_difference === tz); }
+
+function isConf(g, team) {
+  return CONF[g.home_team] === CONF[g.away_team];
 }
 
 function colorClass(val, base) {
@@ -239,51 +290,59 @@ function colorClass(val, base) {
   return '';
 }
 
-function renderApp() {
-  const games = getGames(selectedTeam);
-  const baseline = getThreePct(games, selectedTeam);
+function applyFilter(games, team) {
+  switch(glFilter) {
+    case 'b2b': return games.filter(g => isB2B(g, team));
+    case 'rested': return games.filter(g => !isB2B(g, team));
+    case 'tz0': return games.filter(g => g.tz_difference === 0);
+    case 'tz1': return games.filter(g => g.tz_difference === 1);
+    case 'tz2': return games.filter(g => g.tz_difference === 2);
+    case 'tz3': return games.filter(g => g.tz_difference === 3);
+    case 'conf': return games.filter(g => isConf(g, team));
+    case 'nonconf': return games.filter(g => !isConf(g, team));
+    default: return games;
+  }
+}
 
-  const b2bGames = getB2BGames(games, selectedTeam, true);
-  const restedGames = getB2BGames(games, selectedTeam, false);
-  const b2bPct = getThreePct(b2bGames, selectedTeam);
-  const restedPct = getThreePct(restedGames, selectedTeam);
+function renderGlobalStats() {
+  const games = allGames;
+  const baseline = getThreePct(games, null);
+  const b2bAll = games.filter(g => g.home_b2b || g.away_b2b);
+  const restedAll = games.filter(g => !g.home_b2b && !g.away_b2b);
+  const b2bPct = getThreePct(b2bAll, null);
+  const restedPct = getThreePct(restedAll, null);
+  const tz3 = getThreePct(getTz(games,3), null);
 
-  const tz0 = getThreePct(getTzGames(games, 0), selectedTeam);
-  const tz1 = getThreePct(getTzGames(games, 1), selectedTeam);
-  const tz2 = getThreePct(getTzGames(games, 2), selectedTeam);
-  const tz3 = getThreePct(getTzGames(games, 3), selectedTeam);
-
-  // Per-team 3P% on B2B
   const teamRows = TEAMS.map(team => {
-    const tg = allGames.filter(g => g.home_team === team || g.away_team === team);
+    const tg = getTeamGames(team);
     const all = getThreePct(tg, team);
-    const b2b = getThreePct(getB2BGames(tg, team, true), team);
-    const rested = getThreePct(getB2BGames(tg, team, false), team);
-    const tz2plus = getThreePct(tg.filter(g => g.tz_difference >= 2), team);
-    return { team, all, b2b, rested, tz2plus, b2bGames: getB2BGames(tg, team, true).length };
+    const b2b = getThreePct(getB2B(tg, team, true), team);
+    const rested = getThreePct(getB2B(tg, team, false), team);
+    const tz2plus = getThreePct(tg.filter(g=>g.tz_difference>=2), team);
+    return { team, all, b2b, rested, tz2plus };
   }).sort((a,b) => b.all - a.all);
 
   document.getElementById('app').innerHTML = `
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="label">Baseline 3P%</div>
+        <div class="label">League Baseline 3P%</div>
         <div class="value">${baseline}%</div>
         <div class="sub">${games.length} games</div>
       </div>
       <div class="stat-card">
         <div class="label">Back-to-Back 3P%</div>
         <div class="value" style="color:${b2bPct < baseline ? 'var(--red)' : 'var(--green)'}">${b2bPct}%</div>
-        <div class="sub">${b2bGames.length} B2B games · ${b2bPct < baseline ? '▼' : '▲'} ${Math.abs(round1(b2bPct - baseline))}pp</div>
+        <div class="sub">${b2bAll.length} B2B games · ${b2bPct < baseline ? '▼' : '▲'} ${Math.abs(r1(b2bPct-baseline))}pp</div>
       </div>
       <div class="stat-card">
         <div class="label">Rested (2+ days) 3P%</div>
-        <div class="value" style="color:${restedPct >= baseline ? 'var(--green)' : 'var(--red)'}">${restedPct}%</div>
-        <div class="sub">${restedGames.length} rested games</div>
+        <div class="value" style="color:${restedPct>=baseline?'var(--green)':'var(--red)'}">${restedPct}%</div>
+        <div class="sub">${restedAll.length} rested games</div>
       </div>
       <div class="stat-card">
         <div class="label">3-Zone Travel 3P%</div>
-        <div class="value" style="color:${tz3 < baseline ? 'var(--red)' : 'var(--green)'}">${tz3}%</div>
-        <div class="sub">${getTzGames(games,3).length} games · max fatigue</div>
+        <div class="value" style="color:${tz3<baseline?'var(--red)':'var(--green)'}">${tz3}%</div>
+        <div class="sub">${getTz(games,3).length} games · max fatigue</div>
       </div>
     </div>
 
@@ -292,56 +351,32 @@ function renderApp() {
         <div class="section-title">B2B vs Rested 3P%</div>
         <div class="table-wrap">
           <table>
-            <thead><tr>
-              <th>Scenario</th><th>Games</th><th>3P%</th><th>vs Baseline</th>
-            </tr></thead>
+            <thead><tr><th>Scenario</th><th>Games</th><th>3P%</th><th>vs Baseline</th></tr></thead>
             <tbody>
-              <tr>
-                <td class="baseline">All Games (Baseline)</td>
-                <td>${games.length}</td>
-                <td>${baseline}%</td>
-                <td>—</td>
-              </tr>
-              <tr>
-                <td>Rested (2+ days)</td>
-                <td>${restedGames.length}</td>
-                <td class="${colorClass(restedPct, baseline)}">${restedPct}%</td>
-                <td class="${colorClass(restedPct, baseline)}">${restedPct >= baseline ? '+' : ''}${round1(restedPct - baseline)}pp</td>
-              </tr>
-              <tr>
-                <td>Back-to-Back</td>
-                <td>${b2bGames.length}</td>
-                <td class="${colorClass(b2bPct, baseline)}">${b2bPct}%</td>
-                <td class="${colorClass(b2bPct, baseline)}">${b2bPct >= baseline ? '+' : ''}${round1(b2bPct - baseline)}pp</td>
-              </tr>
+              <tr><td class="baseline">All Games</td><td>${games.length}</td><td>${baseline}%</td><td>—</td></tr>
+              <tr><td>Rested (2+ days)</td><td>${restedAll.length}</td>
+                <td class="${colorClass(restedPct,baseline)}">${restedPct}%</td>
+                <td class="${colorClass(restedPct,baseline)}">${restedPct>=baseline?'+':''}${r1(restedPct-baseline)}pp</td></tr>
+              <tr><td>Back-to-Back</td><td>${b2bAll.length}</td>
+                <td class="${colorClass(b2bPct,baseline)}">${b2bPct}%</td>
+                <td class="${colorClass(b2bPct,baseline)}">${b2bPct>=baseline?'+':''}${r1(b2bPct-baseline)}pp</td></tr>
             </tbody>
           </table>
         </div>
       </div>
-
       <div>
         <div class="section-title">Timezone Crossings 3P%</div>
         <div class="table-wrap">
           <table>
-            <thead><tr>
-              <th>Scenario</th><th>Games</th><th>3P%</th><th>vs Baseline</th>
-            </tr></thead>
+            <thead><tr><th>Scenario</th><th>Games</th><th>3P%</th><th>vs Baseline</th></tr></thead>
             <tbody>
-              <tr>
-                <td class="baseline">All Games (Baseline)</td>
-                <td>${games.length}</td>
-                <td>${baseline}%</td>
-                <td>—</td>
-              </tr>
+              <tr><td class="baseline">All Games</td><td>${games.length}</td><td>${baseline}%</td><td>—</td></tr>
               ${[0,1,2,3].map(tz => {
-                const tzG = getTzGames(games, tz);
-                const pct = [tz0,tz1,tz2,tz3][tz];
-                return `<tr>
-                  <td>${tz === 0 ? 'Same Zone' : tz + ' Zone' + (tz > 1 ? 's' : '')}</td>
-                  <td>${tzG.length}</td>
-                  <td class="${colorClass(pct, baseline)}">${pct}%</td>
-                  <td class="${colorClass(pct, baseline)}">${pct >= baseline ? '+' : ''}${round1(pct - baseline)}pp</td>
-                </tr>`;
+                const tzG = getTz(games,tz);
+                const pct = getThreePct(tzG, null);
+                return `<tr><td>${tz===0?'Same Zone':tz+' Zone'+(tz>1?'s':'')}</td><td>${tzG.length}</td>
+                  <td class="${colorClass(pct,baseline)}">${pct}%</td>
+                  <td class="${colorClass(pct,baseline)}">${pct>=baseline?'+':''}${r1(pct-baseline)}pp</td></tr>`;
               }).join('')}
             </tbody>
           </table>
@@ -354,25 +389,201 @@ function renderApp() {
       <table>
         <thead><tr>
           <th>#</th><th style="text-align:left">Team</th>
-          <th>Overall 3P%</th><th>Rested 3P%</th><th>B2B 3P%</th><th>B2B Diff</th><th>2+TZ 3P%</th><th>2+TZ Diff</th>
+          <th>Overall</th><th>Rested</th><th>B2B</th><th>B2B Diff</th><th>2+TZ</th><th>2+TZ Diff</th>
         </tr></thead>
         <tbody>
-          ${teamRows.map((r, i) => `
-            <tr>
-              <td style="color:var(--dim);font-size:0.7rem">#${i+1}</td>
-              <td style="text-align:left;font-family:var(--body);color:var(--text)">${ABBR[r.team]}</td>
-              <td>${r.all}%</td>
-              <td class="${colorClass(r.rested, r.all)}">${r.rested}%</td>
-              <td class="${colorClass(r.b2b, r.all)}">${r.b2b}%</td>
-              <td class="${colorClass(r.b2b, r.all)}">${r.b2b >= r.all ? '+' : ''}${round1(r.b2b - r.all)}pp</td>
-              <td class="${colorClass(r.tz2plus, r.all)}">${r.tz2plus}%</td>
-              <td class="${colorClass(r.tz2plus, r.all)}">${r.tz2plus >= r.all ? '+' : ''}${round1(r.tz2plus - r.all)}pp</td>
-            </tr>
-          `).join('')}
+          ${teamRows.map((r,i) => `<tr>
+            <td style="color:var(--dim);font-size:0.7rem">#${i+1}</td>
+            <td style="text-align:left;font-family:var(--body);color:var(--text);cursor:pointer;text-decoration:underline;text-decoration-color:var(--dim)"
+              onclick="selectTeam('${r.team}')">${ABBR[r.team]}</td>
+            <td>${r.all}%</td>
+            <td class="${colorClass(r.rested,r.all)}">${r.rested}%</td>
+            <td class="${colorClass(r.b2b,r.all)}">${r.b2b}%</td>
+            <td class="${colorClass(r.b2b,r.all)}">${r.b2b>=r.all?'+':''}${r1(r.b2b-r.all)}pp</td>
+            <td class="${colorClass(r.tz2plus,r.all)}">${r.tz2plus}%</td>
+            <td class="${colorClass(r.tz2plus,r.all)}">${r.tz2plus>=r.all?'+':''}${r1(r.tz2plus-r.all)}pp</td>
+          </tr>`).join('')}
         </tbody>
       </table>
     </div>
   `;
+}
+
+function renderTeamView(team) {
+  const tg = getTeamGames(team).sort((a,b) => b.game_date.localeCompare(a.game_date));
+  const baseline = getThreePct(tg, team);
+  const b2b = getThreePct(getB2B(tg, team, true), team);
+  const rested = getThreePct(getB2B(tg, team, false), team);
+  const tz0 = getThreePct(getTz(tg,0), team);
+  const tz1 = getThreePct(getTz(tg,1), team);
+  const tz2 = getThreePct(getTz(tg,2), team);
+  const tz3 = getThreePct(getTz(tg,3), team);
+  const conf = getThreePct(tg.filter(g=>isConf(g,team)), team);
+  const nonconf = getThreePct(tg.filter(g=>!isConf(g,team)), team);
+
+  const wins = tg.filter(g => (g.home_team===team && g.home_win==='W') || (g.away_team===team && g.home_win==='L')).length;
+  const losses = tg.length - wins;
+  const winPct = tg.length ? r1(wins/tg.length*100) : 0;
+
+  const colors = COLORS[team] || ['#1D4289','#A7ADB0'];
+
+  const filtered = applyFilter(tg, team);
+  const totalPages = Math.ceil(filtered.length / GL_PER_PAGE);
+  const paginated = filtered.slice(glPage*GL_PER_PAGE, (glPage+1)*GL_PER_PAGE);
+
+  document.getElementById('app').innerHTML = `
+    <!-- Team Banner -->
+    <div class="team-banner" style="background:linear-gradient(135deg,${colors[0]}22,${colors[1]}11,var(--navy2));border:1px solid ${colors[0]}44;">
+      <div class="banner-left">
+        <div class="abbr" style="color:${colors[1]}">${ABBR[team]}</div>
+        <div class="name">${team}</div>
+      </div>
+      <div class="banner-stats">
+        <div class="banner-stat"><div class="val" style="color:var(--gold)">${tg.length}</div><div class="lbl">Games</div></div>
+        <div class="banner-stat"><div class="val" style="color:var(--gold)">${wins}–${losses}</div><div class="lbl">Record</div></div>
+        <div class="banner-stat"><div class="val" style="color:var(--gold)">${winPct}%</div><div class="lbl">Win %</div></div>
+        <div class="banner-stat"><div class="val" style="color:var(--gold)">${baseline}%</div><div class="lbl">3P%</div></div>
+        <div class="banner-stat"><div class="val" style="color:${b2b<baseline?'var(--red)':'var(--green)'}">${b2b}%</div><div class="lbl">B2B 3P%</div></div>
+        <div class="banner-stat"><div class="val" style="color:${tz3<baseline?'var(--red)':'var(--green)'}">${tz3}%</div><div class="lbl">3-TZ 3P%</div></div>
+      </div>
+    </div>
+
+    <!-- Breakdown Tables -->
+    <div class="two-col">
+      <div>
+        <div class="section-title">B2B & Rest Breakdown</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Scenario</th><th>Games</th><th>3P%</th><th>vs Baseline</th></tr></thead>
+            <tbody>
+              <tr><td class="baseline">All Games</td><td>${tg.length}</td><td>${baseline}%</td><td>—</td></tr>
+              <tr><td>Rested (2+ days)</td><td>${getB2B(tg,team,false).length}</td>
+                <td class="${colorClass(rested,baseline)}">${rested}%</td>
+                <td class="${colorClass(rested,baseline)}">${rested>=baseline?'+':''}${r1(rested-baseline)}pp</td></tr>
+              <tr><td>Back-to-Back</td><td>${getB2B(tg,team,true).length}</td>
+                <td class="${colorClass(b2b,baseline)}">${b2b}%</td>
+                <td class="${colorClass(b2b,baseline)}">${b2b>=baseline?'+':''}${r1(b2b-baseline)}pp</td></tr>
+              <tr><td>Conference Games</td><td>${tg.filter(g=>isConf(g,team)).length}</td>
+                <td class="${colorClass(conf,baseline)}">${conf}%</td>
+                <td class="${colorClass(conf,baseline)}">${conf>=baseline?'+':''}${r1(conf-baseline)}pp</td></tr>
+              <tr><td>Non-Conference</td><td>${tg.filter(g=>!isConf(g,team)).length}</td>
+                <td class="${colorClass(nonconf,baseline)}">${nonconf}%</td>
+                <td class="${colorClass(nonconf,baseline)}">${nonconf>=baseline?'+':''}${r1(nonconf-baseline)}pp</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="section-title">Timezone Crossings</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Scenario</th><th>Games</th><th>3P%</th><th>vs Baseline</th></tr></thead>
+            <tbody>
+              <tr><td class="baseline">All Games</td><td>${tg.length}</td><td>${baseline}%</td><td>—</td></tr>
+              ${[[0,'Same Zone'],[1,'1 Zone'],[2,'2 Zones'],[3,'3 Zones']].map(([tz,lbl]) => {
+                const tzG = getTz(tg,tz);
+                const pct = [tz0,tz1,tz2,tz3][tz];
+                return `<tr><td>${lbl}</td><td>${tzG.length}</td>
+                  <td class="${colorClass(pct,baseline)}">${pct}%</td>
+                  <td class="${colorClass(pct,baseline)}">${pct>=baseline?'+':''}${r1(pct-baseline)}pp</td></tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Log -->
+    <div class="section-title">Game Log</div>
+    <div class="gamelog-controls">
+      <select onchange="setFilter(this.value)">
+        <option value="all" ${glFilter==='all'?'selected':''}>All Games</option>
+        <option value="b2b" ${glFilter==='b2b'?'selected':''}>Back-to-Back Only</option>
+        <option value="rested" ${glFilter==='rested'?'selected':''}>Rested Only</option>
+        <option value="tz0" ${glFilter==='tz0'?'selected':''}>Same Timezone</option>
+        <option value="tz1" ${glFilter==='tz1'?'selected':''}>1 Zone Crossed</option>
+        <option value="tz2" ${glFilter==='tz2'?'selected':''}>2 Zones Crossed</option>
+        <option value="tz3" ${glFilter==='tz3'?'selected':''}>3 Zones Crossed</option>
+        <option value="conf" ${glFilter==='conf'?'selected':''}>Conference Games</option>
+        <option value="nonconf" ${glFilter==='nonconf'?'selected':''}>Non-Conference</option>
+      </select>
+      <span class="gamelog-count">${filtered.length} games</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Date</th><th style="text-align:left">Opponent</th><th>H/A</th>
+          <th>Score</th><th>Result</th><th>3P%</th><th>TZ</th><th>B2B</th><th>Rest</th><th>Conf</th>
+        </tr></thead>
+        <tbody>
+          ${paginated.map(g => {
+            const isHome = g.home_team === team;
+            const opp = isHome ? g.away_team : g.home_team;
+            const myScore = isHome ? g.home_score : g.away_score;
+            const oppScore = isHome ? g.away_score : g.home_score;
+            const won = (isHome && g.home_win==='W') || (!isHome && g.home_win==='L');
+            const myPct = isHome ? g.home_three_pct : g.away_three_pct;
+            const myB2B = isHome ? g.home_b2b : g.away_b2b;
+            const myRest = isHome ? g.home_rest_days : g.away_rest_days;
+            const confGame = isConf(g, team);
+            return `<tr>
+              <td style="color:var(--dim)">${g.game_date}</td>
+              <td style="text-align:left">${ABBR[opp] || opp}</td>
+              <td>${isHome ? 'HOME' : 'AWAY'}</td>
+              <td>${myScore}–${oppScore}</td>
+              <td class="${won?'gl-win':'gl-loss'}">${won?'W':'L'}</td>
+              <td class="${myPct!=null?(myPct>=baseline?'up':'down'):''}">${myPct!=null?myPct+'%':'—'}</td>
+              <td class="${g.tz_difference>=2?'gl-tz':''}">${g.tz_difference}</td>
+              <td>${myB2B?'<span class="gl-b2b">B2B</span>':'—'}</td>
+              <td style="color:${myRest<=1?'var(--red)':myRest>=3?'var(--green)':'var(--muted)'}">${myRest}d</td>
+              <td style="color:var(--dim)">${confGame?'CONF':'NON'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <button class="page-btn" onclick="changePage(-1)" ${glPage===0?'disabled':''}>← Prev</button>
+      <span class="page-info">${glPage+1} / ${totalPages||1}</span>
+      <button class="page-btn" onclick="changePage(1)" ${glPage>=totalPages-1?'disabled':''}>Next →</button>
+    </div>
+  `;
+}
+
+function setFilter(val) {
+  glFilter = val;
+  glPage = 0;
+  renderTeamView(selectedTeam);
+}
+
+function changePage(dir) {
+  const tg = applyFilter(getTeamGames(selectedTeam).sort((a,b)=>b.game_date.localeCompare(a.game_date)), selectedTeam);
+  const totalPages = Math.ceil(tg.length / GL_PER_PAGE);
+  glPage = Math.max(0, Math.min(totalPages-1, glPage+dir));
+  renderTeamView(selectedTeam);
+}
+
+function selectTeam(team) {
+  selectedTeam = team === selectedTeam ? null : team;
+  glFilter = 'all';
+  glPage = 0;
+  updateButtons();
+  if (selectedTeam) {
+    renderTeamView(selectedTeam);
+  } else {
+    renderGlobalStats();
+  }
+}
+
+function updateButtons() {
+  document.querySelectorAll('.team-btn').forEach(btn => {
+    if (btn.classList.contains('all-btn')) {
+      btn.classList.toggle('inactive', selectedTeam !== null);
+    } else {
+      const team = TEAMS.find(t => ABBR[t] === btn.textContent);
+      btn.classList.toggle('active', team === selectedTeam);
+    }
+  });
 }
 
 async function loadData() {
@@ -381,48 +592,31 @@ async function loadData() {
   while (true) {
     const { data, error } = await sb
       .from('NBA_Games')
-      .select('home_team,away_team,home_three_pct,away_three_pct,home_b2b,away_b2b,home_rest_days,away_rest_days,tz_difference,travel_direction')
-      .range(from, from + 499);
-    if (error || !data || data.length === 0) break;
+      .select('home_team,away_team,home_conference,away_conference,home_three_pct,away_three_pct,home_b2b,away_b2b,home_rest_days,away_rest_days,tz_difference,travel_direction,home_score,away_score,home_win,game_date,point_diff')
+      .range(from, from+499);
+    if (error || !data || !data.length) break;
     all = [...all, ...data];
     if (data.length < 500) break;
     from += 500;
   }
   allGames = all;
 
-  // Build team buttons
   const container = document.getElementById('teamButtons');
   const allBtn = document.createElement('button');
   allBtn.className = 'team-btn all-btn';
   allBtn.textContent = 'ALL';
-  allBtn.onclick = () => { selectedTeam = null; updateButtons(); renderApp(); };
+  allBtn.onclick = () => { selectedTeam = null; updateButtons(); renderGlobalStats(); };
   container.appendChild(allBtn);
 
   TEAMS.forEach(team => {
     const btn = document.createElement('button');
     btn.className = 'team-btn';
     btn.textContent = ABBR[team];
-    btn.onclick = () => {
-      selectedTeam = selectedTeam === team ? null : team;
-      updateButtons();
-      renderApp();
-    };
+    btn.onclick = () => selectTeam(team);
     container.appendChild(btn);
   });
 
-  renderApp();
-}
-
-function updateButtons() {
-  const btns = document.querySelectorAll('.team-btn');
-  btns.forEach(btn => {
-    if (btn.classList.contains('all-btn')) {
-      btn.classList.toggle('inactive', selectedTeam !== null);
-    } else {
-      const team = TEAMS.find(t => ABBR[t] === btn.textContent);
-      btn.classList.toggle('active', team === selectedTeam);
-    }
-  });
+  renderGlobalStats();
 }
 
 loadData();
