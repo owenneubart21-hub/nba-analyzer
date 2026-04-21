@@ -60,7 +60,7 @@
 
   .team-filter { margin-bottom: 28px; }
   .filter-label { font-family: var(--header); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--dim); margin-bottom: 10px; }
-  .team-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+  .team-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
   .team-btn {
     font-family: var(--mono); font-size: 0.72rem; padding: 5px 10px;
     border-radius: 6px; border: 1px solid var(--border);
@@ -70,6 +70,19 @@
   .team-btn.active { background: rgba(251,191,36,0.12); border-color: var(--gold); color: var(--gold); }
   .team-btn.all-btn { font-family: var(--header); font-weight: 600; font-size: 0.75rem; padding: 5px 14px; background: var(--gold2); border-color: var(--gold2); color: #000; }
   .team-btn.all-btn.inactive { background: var(--glass); border-color: var(--border); color: var(--muted); }
+
+  .dropdown-select {
+    font-family: var(--header); font-weight: 600; font-size: 0.85rem;
+    background: #0e2450; border: 1px solid var(--border);
+    color: var(--text); padding: 10px 36px 10px 16px; border-radius: 8px; cursor: pointer;
+    outline: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238ba0c4' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+    min-width: 220px;
+  }
+  .dropdown-select:focus { border-color: var(--gold); }
+  .dropdown-select option { background: #0e2450; color: var(--text); }
+  .dropdown-select optgroup { background: #0e2450; color: var(--gold); }
 
   .section-title {
     font-family: var(--header); font-weight: 700; font-size: 0.9rem;
@@ -98,8 +111,6 @@
   td.down { color: var(--red); }
 
   .table-wrap { overflow-x: auto; margin-bottom: 40px; }
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 40px; }
-  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
 
   .loading { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 80px 0; color: var(--muted); }
   .spinner { width: 40px; height: 40px; border-radius: 50%; border: 3px solid var(--navy3); border-top-color: var(--gold); animation: spin 0.8s linear infinite; }
@@ -146,10 +157,6 @@
   .page-btn:hover { border-color: var(--gold); color: var(--gold); }
   .page-btn:disabled { opacity: 0.3; cursor: default; }
   .page-info { font-family: var(--mono); font-size: 0.75rem; color: var(--dim); }
-
-  .stat-section { margin-bottom: 40px; }
-  .stat-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-  .stat-compare-label { font-family: var(--header); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dim); text-align: center; padding: 4px; }
 </style>
 </head>
 <body>
@@ -169,6 +176,9 @@
 
   <div class="team-filter">
     <div class="filter-label">Select a Team</div>
+    <select class="dropdown-select" id="teamDropdown" onchange="selectTeamFromDropdown(this.value)">
+      <option value="">All Teams — League View</option>
+    </select>
     <div class="team-buttons" id="teamButtons"></div>
   </div>
 
@@ -264,8 +274,6 @@ function avg(arr) {
   return v.length ? v.reduce((a,b)=>a+b,0)/v.length : 0;
 }
 function r1(x) { return Math.round(x*10)/10; }
-function r2(x) { return Math.round(x*100)/100; }
-function fmt(x, dec=1) { return x != null ? r1(x) : '—'; }
 
 function getTeamGames(team) {
   return allGames.filter(g => g.home_team === team || g.away_team === team);
@@ -292,12 +300,18 @@ function getMyStats(g, team) {
 
 function computeAvgStats(games, team) {
   const fields = ['pts','opp_pts','two_made','three_made','two_pct','three_pct','ast','tov','stl','blk','oreb','dreb','treb'];
-  const sums = {};
-  const counts = {};
+  const sums = {}, counts = {};
   fields.forEach(f => { sums[f] = 0; counts[f] = 0; });
 
   for (const g of games) {
-    const s = getMyStats(g, team);
+    const s = team ? getMyStats(g, team) : {
+      pts: g.home_points, opp_pts: g.away_points,
+      two_made: g.home_two_made, three_made: g.home_three_made,
+      two_pct: g.home_two_pct, three_pct: g.home_three_pct,
+      ast: g.home_assists, tov: g.home_turnovers,
+      stl: g.home_steals, blk: g.home_blocks,
+      oreb: g.home_off_rebounds, dreb: g.home_def_rebounds, treb: g.home_total_rebounds
+    };
     fields.forEach(f => {
       if (s[f] != null) { sums[f] += s[f]; counts[f]++; }
     });
@@ -312,7 +326,6 @@ function getRestDays(g, team) {
   return g.home_team === team ? g.home_rest_days : g.away_rest_days;
 }
 
-function isB2B(g, team) { return g.home_team === team ? g.home_b2b : g.away_b2b; }
 function getTz(games, tz) { return games.filter(g => g.tz_difference === tz); }
 function isConf(g, team) { return CONF[g.home_team] === CONF[g.away_team]; }
 function isDivision(g, team) { return DIVISION[g.home_team] === DIVISION[g.away_team]; }
@@ -345,17 +358,6 @@ function applyFilter(games, team) {
   }
 }
 
-function statRow(label, val, base, lowerBetter=false, suffix='') {
-  const cc = colorClass(val, base, lowerBetter);
-  const diff = val != null && base != null ? r1(val - base) : null;
-  const diffStr = diff != null ? (diff >= 0 ? '+'+diff : ''+diff) : '—';
-  return `<tr>
-    <td>${label}</td>
-    <td>${val != null ? val+suffix : '—'}</td>
-    <td class="${cc}">${diff != null ? diffStr+suffix : '—'}</td>
-  </tr>`;
-}
-
 function renderScenarioTable(scenarios) {
   const fields = [
     {key:'pts', label:'Points', lower:false},
@@ -380,7 +382,7 @@ function renderScenarioTable(scenarios) {
       <thead>
         <tr>
           <th style="text-align:left">Stat</th>
-          ${scenarios.map(s => `<th>${s.label}<br><span style="color:var(--dim);font-weight:400">${s.games}g</span></th>`).join('')}
+          ${scenarios.map(s => `<th>${s.label}<br><span style="color:var(--dim);font-weight:400;font-size:0.6rem">${s.games}g</span></th>`).join('')}
         </tr>
       </thead>
       <tbody>
@@ -400,46 +402,51 @@ function renderScenarioTable(scenarios) {
 function renderGlobalStats() {
   const games = allGames;
   const baseline = computeAvgStats(games, null);
+  const b2bGames = games.filter(g => g.home_b2b || g.away_b2b);
+  const b2b = computeAvgStats(b2bGames, null);
+  const tz3games = getTz(games, 3);
+  const tz3 = computeAvgStats(tz3games, null);
 
   const teamRows = TEAMS.map(team => {
     const tg = getTeamGames(team);
     const all = computeAvgStats(tg, team);
-    const b2b = computeAvgStats(tg.filter(g=>getRestDays(g,team)===1), team);
-    const tz2plus = computeAvgStats(tg.filter(g=>g.tz_difference>=2), team);
-    return { team, all, b2b, tz2plus, games: tg.length };
+    const tb2b = computeAvgStats(tg.filter(g=>getRestDays(g,team)===1), team);
+    const ttz2plus = computeAvgStats(tg.filter(g=>g.tz_difference>=2), team);
+    const wins = tg.filter(g=>(g.home_team===team&&g.home_win==='W')||(g.away_team===team&&g.home_win==='L')).length;
+    return { team, all, tb2b, ttz2plus, games: tg.length, wins, losses: tg.length-wins };
   }).sort((a,b) => (b.all.three_pct||0) - (a.all.three_pct||0));
 
   document.getElementById('app').innerHTML = `
     <div class="stats-grid">
       <div class="stat-card">
         <div class="label">League Avg Points</div>
-        <div class="value">${baseline.pts}</div>
+        <div class="value">${baseline.pts??'—'}</div>
         <div class="sub">${games.length} games</div>
       </div>
       <div class="stat-card">
         <div class="label">League Avg 3P%</div>
-        <div class="value">${baseline.three_pct}%</div>
+        <div class="value">${baseline.three_pct??'—'}%</div>
         <div class="sub">baseline</div>
       </div>
       <div class="stat-card">
-        <div class="label">B2B 3P%</div>
-        <div class="value" style="color:${(computeAvgStats(games.filter(g=>g.home_b2b||g.away_b2b),null).three_pct||0)<(baseline.three_pct||0)?'var(--red)':'var(--green)'}">${computeAvgStats(games.filter(g=>g.home_b2b||g.away_b2b),null).three_pct}%</div>
-        <div class="sub">${games.filter(g=>g.home_b2b||g.away_b2b).length} B2B games</div>
+        <div class="label">B2B Avg 3P%</div>
+        <div class="value" style="color:${(b2b.three_pct||0)<(baseline.three_pct||0)?'var(--red)':'var(--green)'}">${b2b.three_pct??'—'}%</div>
+        <div class="sub">${b2bGames.length} B2B games</div>
       </div>
       <div class="stat-card">
         <div class="label">League Avg Assists</div>
-        <div class="value">${baseline.ast}</div>
+        <div class="value">${baseline.ast??'—'}</div>
         <div class="sub">per game</div>
       </div>
       <div class="stat-card">
         <div class="label">League Avg Turnovers</div>
-        <div class="value">${baseline.tov}</div>
+        <div class="value">${baseline.tov??'—'}</div>
         <div class="sub">per game</div>
       </div>
       <div class="stat-card">
         <div class="label">3-Zone Travel 3P%</div>
-        <div class="value" style="color:${(computeAvgStats(getTz(games,3),null).three_pct||0)<(baseline.three_pct||0)?'var(--red)':'var(--green)'}">${computeAvgStats(getTz(games,3),null).three_pct}%</div>
-        <div class="sub">${getTz(games,3).length} games</div>
+        <div class="value" style="color:${(tz3.three_pct||0)<(baseline.three_pct||0)?'var(--red)':'var(--green)'}">${tz3.three_pct??'—'}%</div>
+        <div class="sub">${tz3games.length} games</div>
       </div>
     </div>
 
@@ -447,7 +454,7 @@ function renderGlobalStats() {
     <div class="table-wrap">
       <table>
         <thead><tr>
-          <th>#</th><th style="text-align:left">Team</th><th>G</th>
+          <th>#</th><th style="text-align:left">Team</th><th>G</th><th>W-L</th>
           <th>PTS</th><th>OPP</th><th>3P%</th><th>2P%</th><th>3PM</th><th>2PM</th>
           <th>AST</th><th>TOV</th><th>STL</th><th>BLK</th><th>OREB</th><th>DREB</th><th>REB</th>
           <th>B2B 3P%</th><th>2+TZ 3P%</th>
@@ -458,6 +465,7 @@ function renderGlobalStats() {
             <td style="text-align:left;font-family:var(--body);color:var(--text);cursor:pointer;text-decoration:underline;text-decoration-color:var(--dim)"
               onclick="selectTeam('${r.team}')">${ABBR[r.team]}</td>
             <td>${r.games}</td>
+            <td style="color:var(--muted)">${r.wins}-${r.losses}</td>
             <td>${r.all.pts??'—'}</td>
             <td>${r.all.opp_pts??'—'}</td>
             <td>${r.all.three_pct??'—'}%</td>
@@ -471,8 +479,8 @@ function renderGlobalStats() {
             <td>${r.all.oreb??'—'}</td>
             <td>${r.all.dreb??'—'}</td>
             <td>${r.all.treb??'—'}</td>
-            <td class="${colorClass(r.b2b.three_pct,r.all.three_pct)}">${r.b2b.three_pct??'—'}%</td>
-            <td class="${colorClass(r.tz2plus.three_pct,r.all.three_pct)}">${r.tz2plus.three_pct??'—'}%</td>
+            <td class="${colorClass(r.tb2b.three_pct,r.all.three_pct)}">${r.tb2b.three_pct??'—'}%</td>
+            <td class="${colorClass(r.ttz2plus.three_pct,r.all.three_pct)}">${r.ttz2plus.three_pct??'—'}%</td>
           </tr>`).join('')}
         </tbody>
       </table>
@@ -537,11 +545,11 @@ function renderTeamView(team) {
         <div class="banner-stat"><div class="val" style="color:var(--gold)">${tg.length}</div><div class="lbl">Games</div></div>
         <div class="banner-stat"><div class="val" style="color:var(--gold)">${wins}-${losses}</div><div class="lbl">Record</div></div>
         <div class="banner-stat"><div class="val" style="color:var(--gold)">${winPct}%</div><div class="lbl">Win %</div></div>
-        <div class="banner-stat"><div class="val" style="color:var(--gold)">${baseline.pts}</div><div class="lbl">Avg PTS</div></div>
-        <div class="banner-stat"><div class="val" style="color:var(--gold)">${baseline.three_pct}%</div><div class="lbl">3P%</div></div>
-        <div class="banner-stat"><div class="val" style="color:${(b2b.three_pct||0)<(baseline.three_pct||0)?'var(--red)':'var(--green)'}">${b2b.three_pct}%</div><div class="lbl">B2B 3P%</div></div>
-        <div class="banner-stat"><div class="val" style="color:var(--gold)">${baseline.ast}</div><div class="lbl">Avg AST</div></div>
-        <div class="banner-stat"><div class="val" style="color:var(--gold)">${baseline.tov}</div><div class="lbl">Avg TOV</div></div>
+        <div class="banner-stat"><div class="val" style="color:var(--gold)">${baseline.pts??'—'}</div><div class="lbl">Avg PTS</div></div>
+        <div class="banner-stat"><div class="val" style="color:var(--gold)">${baseline.three_pct??'—'}%</div><div class="lbl">3P%</div></div>
+        <div class="banner-stat"><div class="val" style="color:${(b2b.three_pct||0)<(baseline.three_pct||0)?'var(--red)':'var(--green)'}">${b2b.three_pct??'—'}%</div><div class="lbl">B2B 3P%</div></div>
+        <div class="banner-stat"><div class="val" style="color:var(--gold)">${baseline.ast??'—'}</div><div class="lbl">Avg AST</div></div>
+        <div class="banner-stat"><div class="val" style="color:var(--gold)">${baseline.tov??'—'}</div><div class="lbl">Avg TOV</div></div>
       </div>
     </div>
 
@@ -584,25 +592,12 @@ function renderTeamView(team) {
         <thead><tr>
           <th>Date</th>
           <th style="text-align:left">Opp</th>
-          <th>H/A</th>
-          <th>Score</th>
-          <th>Res</th>
-          <th>PTS</th>
-          <th>OPP</th>
-          <th>3P%</th>
-          <th>2P%</th>
-          <th>3PM</th>
-          <th>2PM</th>
-          <th>AST</th>
-          <th>TOV</th>
-          <th>STL</th>
-          <th>BLK</th>
-          <th>OREB</th>
-          <th>DREB</th>
-          <th>REB</th>
-          <th>TZ</th>
-          <th>Off</th>
-          <th>Conf</th>
+          <th>H/A</th><th>Score</th><th>Res</th>
+          <th>PTS</th><th>OPP</th>
+          <th>3P%</th><th>2P%</th><th>3PM</th><th>2PM</th>
+          <th>AST</th><th>TOV</th><th>STL</th><th>BLK</th>
+          <th>OREB</th><th>DREB</th><th>REB</th>
+          <th>TZ</th><th>Off</th><th>Conf</th>
         </tr></thead>
         <tbody>
           ${paginated.map(g => {
@@ -675,7 +670,18 @@ function selectTeam(team) {
   else renderGlobalStats();
 }
 
+function selectTeamFromDropdown(val) {
+  selectedTeam = val || null;
+  glFilter = 'all';
+  glPage = 0;
+  updateButtons();
+  if (selectedTeam) renderTeamView(selectedTeam);
+  else renderGlobalStats();
+}
+
 function updateButtons() {
+  const dropdown = document.getElementById('teamDropdown');
+  if (dropdown) dropdown.value = selectedTeam || '';
   document.querySelectorAll('.team-btn').forEach(btn => {
     if (btn.classList.contains('all-btn')) {
       btn.classList.toggle('inactive', selectedTeam !== null);
@@ -701,7 +707,33 @@ async function loadData() {
   }
   allGames = all;
 
+  const dropdown = document.getElementById('teamDropdown');
   const container = document.getElementById('teamButtons');
+
+  const eastTeams = TEAMS.filter(t => CONF[t] === 'East');
+  const westTeams = TEAMS.filter(t => CONF[t] === 'West');
+
+  const eastGroup = document.createElement('optgroup');
+  eastGroup.label = 'Eastern Conference';
+  eastTeams.forEach(team => {
+    const opt = document.createElement('option');
+    opt.value = team;
+    opt.textContent = ABBR[team] + ' — ' + team;
+    eastGroup.appendChild(opt);
+  });
+
+  const westGroup = document.createElement('optgroup');
+  westGroup.label = 'Western Conference';
+  westTeams.forEach(team => {
+    const opt = document.createElement('option');
+    opt.value = team;
+    opt.textContent = ABBR[team] + ' — ' + team;
+    westGroup.appendChild(opt);
+  });
+
+  dropdown.appendChild(eastGroup);
+  dropdown.appendChild(westGroup);
+
   const allBtn = document.createElement('button');
   allBtn.className = 'team-btn all-btn';
   allBtn.textContent = 'ALL';
