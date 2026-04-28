@@ -30,23 +30,12 @@
 
   body { font-family: var(--body); background: var(--navy); color: var(--text); min-height: 100vh; }
 
-  .bg-grid {
-    position: fixed; inset: 0;
-    background-image: linear-gradient(rgba(13,36,80,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(13,36,80,0.3) 1px, transparent 1px);
-    background-size: 40px 40px; pointer-events: none; z-index: 0;
-  }
-  .bg-radial {
-    position: fixed; inset: 0;
-    background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(19,46,104,0.5), transparent);
-    pointer-events: none; z-index: 0;
-  }
+  .bg-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(13,36,80,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(13,36,80,0.3) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+  .bg-radial { position: fixed; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(19,46,104,0.5), transparent); pointer-events: none; z-index: 0; }
 
   .content { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; padding: 0 20px 80px; }
 
-  header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 24px 0; margin-bottom: 32px; border-bottom: 1px solid var(--border);
-  }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 24px 0; margin-bottom: 32px; border-bottom: 1px solid var(--border); }
   .logo { display: flex; align-items: center; gap: 12px; }
   .logo-icon { width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, var(--gold), var(--gold2)); display: flex; align-items: center; justify-content: center; font-size: 18px; }
   .logo h1 { font-family: var(--header); font-weight: 800; font-size: 1.4rem; }
@@ -69,23 +58,16 @@
   .dropdown-select option { background: #0e2450; color: var(--text); }
   .dropdown-select optgroup { background: #0e2450; color: var(--gold); }
 
-  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
-  .tab-btn {
-    font-family: var(--header); font-weight: 600; font-size: 0.82rem;
-    text-transform: uppercase; letter-spacing: 0.08em;
-    padding: 10px 20px; background: none; border: none; cursor: pointer;
-    color: var(--dim); border-bottom: 2px solid transparent; margin-bottom: -1px;
-    transition: all 0.2s;
-  }
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 28px; flex-wrap: wrap; }
+  .tab-btn { font-family: var(--header); font-weight: 600; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 10px 20px; background: none; border: none; cursor: pointer; color: var(--dim); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.2s; }
   .tab-btn:hover { color: var(--text); }
   .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .tab-btn.playoff-tab { color: #a78bfa; }
+  .tab-btn.playoff-tab.active { color: #a78bfa; border-bottom-color: #a78bfa; }
 
-  .section-title {
-    font-family: var(--header); font-weight: 700; font-size: 0.85rem;
-    text-transform: uppercase; letter-spacing: 0.08em;
-    color: var(--text); margin-bottom: 14px; padding-bottom: 8px;
-    border-bottom: 1px solid var(--border);
-  }
+  .playoff-badge { display: inline-block; background: linear-gradient(135deg, #7c3aed, #a78bfa); color: #fff; font-family: var(--header); font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 2px 7px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }
+
+  .section-title { font-family: var(--header); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
 
   .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 32px; }
   .stat-card { background: var(--glass); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
@@ -106,16 +88,15 @@
   td.down { color: var(--red); }
 
   .table-wrap { overflow-x: auto; margin-bottom: 32px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
 
   .loading { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 80px 0; color: var(--muted); }
   .spinner { width: 40px; height: 40px; border-radius: 50%; border: 3px solid var(--navy3); border-top-color: var(--gold); animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-text { font-family: var(--header); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; }
 
-  .team-banner {
-    border-radius: 14px; padding: 22px 28px; margin-bottom: 24px;
-    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
-  }
+  .team-banner { border-radius: 14px; padding: 22px 28px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
   .banner-left .abbr { font-family: var(--header); font-weight: 800; font-size: 2rem; letter-spacing: -0.03em; }
   .banner-left .name { font-family: var(--header); font-weight: 600; font-size: 0.95rem; color: var(--text); margin-top: 2px; }
   .banner-stats { display: flex; gap: 20px; flex-wrap: wrap; }
@@ -124,14 +105,7 @@
   .banner-stat .lbl { font-family: var(--header); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--dim); margin-top: 2px; }
 
   .gamelog-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
-  .gamelog-controls select {
-    font-family: var(--header); font-weight: 600; font-size: 0.8rem;
-    background: #0e2450; border: 1px solid var(--border);
-    color: var(--text); padding: 8px 32px 8px 14px; border-radius: 8px; cursor: pointer;
-    outline: none; appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238ba0c4' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 10px center;
-  }
+  .gamelog-controls select { font-family: var(--header); font-weight: 600; font-size: 0.8rem; background: #0e2450; border: 1px solid var(--border); color: var(--text); padding: 8px 32px 8px 14px; border-radius: 8px; cursor: pointer; outline: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238ba0c4' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
   .gamelog-controls select option { background: #0e2450; color: var(--text); }
   .gamelog-controls select optgroup { background: #0e2450; color: var(--gold); }
   .gamelog-count { font-family: var(--mono); font-size: 0.75rem; color: var(--dim); margin-left: auto; }
@@ -139,6 +113,7 @@
   .gl-win { color: var(--green); font-weight: 600; }
   .gl-loss { color: var(--red); font-weight: 600; }
   .gl-tz { color: var(--gold); }
+  .gl-playoff { color: #a78bfa; font-size: 0.65rem; font-family: var(--header); font-weight: 700; }
 
   .pagination { display: flex; align-items: center; gap: 10px; justify-content: center; margin-top: 16px; }
   .page-btn { font-family: var(--header); font-weight: 600; font-size: 0.75rem; padding: 6px 16px; background: var(--glass); border: 1px solid var(--border); border-radius: 6px; color: var(--muted); cursor: pointer; }
@@ -146,12 +121,11 @@
   .page-btn:disabled { opacity: 0.3; cursor: default; }
   .page-info { font-family: var(--mono); font-size: 0.75rem; color: var(--dim); }
 
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
-
   .tag { display: inline-block; font-family: var(--header); font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 7px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }
   .tag-team { background: rgba(251,191,36,0.15); color: var(--gold); }
   .tag-opp { background: rgba(248,113,113,0.15); color: var(--red); }
+
+  .no-playoffs { text-align: center; padding: 60px 20px; color: var(--dim); font-family: var(--header); font-size: 0.9rem; }
 </style>
 </head>
 <body>
@@ -200,6 +174,8 @@ const CONF = {"Atlanta Hawks":"East","Boston Celtics":"East","Brooklyn Nets":"Ea
 
 const DIVISION = {"Atlanta Hawks":"Southeast","Boston Celtics":"Atlantic","Brooklyn Nets":"Atlantic","Charlotte Hornets":"Southeast","Chicago Bulls":"Central","Cleveland Cavaliers":"Central","Dallas Mavericks":"Southwest","Denver Nuggets":"Northwest","Detroit Pistons":"Central","Golden State Warriors":"Pacific","Houston Rockets":"Southwest","Indiana Pacers":"Central","LA Clippers":"Pacific","Los Angeles Lakers":"Pacific","Memphis Grizzlies":"Southwest","Miami Heat":"Southeast","Milwaukee Bucks":"Central","Minnesota Timberwolves":"Northwest","New Orleans Pelicans":"Southwest","New York Knicks":"Atlantic","Oklahoma City Thunder":"Northwest","Orlando Magic":"Southeast","Philadelphia 76ers":"Atlantic","Phoenix Suns":"Pacific","Portland Trail Blazers":"Northwest","Sacramento Kings":"Pacific","San Antonio Spurs":"Southwest","Toronto Raptors":"Atlantic","Utah Jazz":"Northwest","Washington Wizards":"Southeast"};
 
+const PLAYOFF_START = "2026-04-19";
+
 let allGames = [];
 let selectedTeam = null;
 let activeTab = 'overview';
@@ -207,7 +183,6 @@ let glFilter = 'all';
 let glPage = 0;
 const GL_PER_PAGE = 20;
 
-function avg(arr) { const v = arr.filter(x=>x!=null&&!isNaN(x)); return v.length?v.reduce((a,b)=>a+b,0)/v.length:0; }
 function r1(x) { return Math.round(x*10)/10; }
 function getTeamGames(team) { return allGames.filter(g=>g.home_team===team||g.away_team===team); }
 function getRestDays(g,team) { return g.home_team===team?g.home_rest_days:g.away_rest_days; }
@@ -215,6 +190,7 @@ function getTz(games,tz) { return games.filter(g=>g.tz_difference===tz); }
 function isConf(g,team) { return CONF[g.home_team]===CONF[g.away_team]; }
 function isDivision(g,team) { return DIVISION[g.home_team]===DIVISION[g.away_team]; }
 function getOpp(g,team) { return g.home_team===team?g.away_team:g.home_team; }
+function isPlayoff(g) { return g.is_playoff===true || g.game_date >= PLAYOFF_START; }
 
 function getMyStats(g,team) {
   const h=g.home_team===team;
@@ -259,6 +235,8 @@ function applyFilter(games,team) {
     case'division':return games.filter(g=>isDivision(g,team));
     case'vseast':return games.filter(g=>CONF[getOpp(g,team)]==='East');
     case'vswest':return games.filter(g=>CONF[getOpp(g,team)]==='West');
+    case'playoff':return games.filter(g=>isPlayoff(g));
+    case'regular':return games.filter(g=>!isPlayoff(g));
     default:return games;
   }
 }
@@ -278,7 +256,7 @@ const FIELDS=[
   {key:'treb',label:'Total Reb',low:false},
 ];
 
-function scenarioTable(scenarios, oppMode=false) {
+function scenarioTable(scenarios,oppMode=false) {
   const base=scenarios[0].stats;
   return `<div class="table-wrap"><table>
     <thead><tr>
@@ -298,132 +276,230 @@ function scenarioTable(scenarios, oppMode=false) {
   </table></div>`;
 }
 
-function renderTabs(team) {
-  const tabs = team
-    ? [['overview','Overview'],['rest','Rest & Fatigue'],['timezone','Timezones'],['schedule','Schedule'],['gamelog','Game Log']]
-    : [['overview','League Overview']];
-  return `<div class="tabs">${tabs.map(([id,label])=>`<button class="tab-btn ${activeTab===id?'active':''}" onclick="setTab('${id}')">${label}</button>`).join('')}</div>`;
+function gameLogTable(paginated,team,base,oBase,myDiv,filtered,safePage,totalPages) {
+  return `<div class="table-wrap"><table>
+    <thead>
+      <tr>
+        <th colspan="5"></th>
+        <th colspan="12" style="text-align:center;color:var(--gold);border-left:1px solid var(--border)">${ABBR[team]}</th>
+        <th colspan="12" style="text-align:center;color:var(--red);border-left:1px solid var(--border)">Opponent</th>
+        <th colspan="3"></th>
+      </tr>
+      <tr>
+        <th>Date</th><th style="text-align:left">Opp</th><th>H/A</th><th>Score</th><th>Res</th>
+        <th style="border-left:1px solid var(--border)">PTS</th><th>3P%</th><th>2P%</th><th>3PM</th><th>2PM</th><th>AST</th><th>TOV</th><th>STL</th><th>BLK</th><th>OREB</th><th>DREB</th><th>REB</th>
+        <th style="border-left:1px solid var(--border)">PTS</th><th>3P%</th><th>2P%</th><th>3PM</th><th>2PM</th><th>AST</th><th>TOV</th><th>STL</th><th>BLK</th><th>OREB</th><th>DREB</th><th>REB</th>
+        <th>TZ</th><th>Off</th><th>Type</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${paginated.map(g=>{
+        const isHome=g.home_team===team;
+        const opp=getOpp(g,team);
+        const myScore=isHome?g.home_score:g.away_score;
+        const oppScore=isHome?g.away_score:g.home_score;
+        const won=(isHome&&g.home_win==='W')||(!isHome&&g.home_win==='L');
+        const s=getMyStats(g,team);
+        const o=getOppStats(g,team);
+        const rd=getRestDays(g,team);
+        const doff=rd-1;
+        const rc=doff<=0?'var(--red)':doff===1?'var(--muted)':'var(--green)';
+        const playoff=isPlayoff(g);
+        return `<tr style="${playoff?'background:rgba(124,58,237,0.04)':''}">
+          <td style="color:var(--dim)">${g.game_date}${playoff?'<span class="gl-playoff" style="margin-left:4px">PO</span>':''}</td>
+          <td style="text-align:left">${ABBR[opp]||opp} <span style="color:var(--dim);font-size:0.65rem">${CONF[opp]}</span></td>
+          <td style="color:var(--dim);font-size:0.7rem">${isHome?'HM':'AW'}</td>
+          <td>${myScore}-${oppScore}</td>
+          <td class="${won?'gl-win':'gl-loss'}">${won?'W':'L'}</td>
+          <td style="border-left:1px solid var(--border)" class="${cc(s.pts,base.pts)}">${s.pts??'—'}</td>
+          <td class="${cc(s.three_pct,base.three_pct)}">${s.three_pct!=null?s.three_pct+'%':'—'}</td>
+          <td class="${cc(s.two_pct,base.two_pct)}">${s.two_pct!=null?s.two_pct+'%':'—'}</td>
+          <td>${s.three_made??'—'}</td><td>${s.two_made??'—'}</td>
+          <td class="${cc(s.ast,base.ast)}">${s.ast??'—'}</td>
+          <td class="${cc(s.tov,base.tov,true)}">${s.tov??'—'}</td>
+          <td class="${cc(s.stl,base.stl)}">${s.stl??'—'}</td>
+          <td class="${cc(s.blk,base.blk)}">${s.blk??'—'}</td>
+          <td>${s.oreb??'—'}</td><td>${s.dreb??'—'}</td><td>${s.treb??'—'}</td>
+          <td style="border-left:1px solid var(--border)" class="${cc(o.pts,oBase.pts,true)}">${o.pts??'—'}</td>
+          <td class="${cc(o.three_pct,oBase.three_pct,true)}">${o.three_pct!=null?o.three_pct+'%':'—'}</td>
+          <td class="${cc(o.two_pct,oBase.two_pct,true)}">${o.two_pct!=null?o.two_pct+'%':'—'}</td>
+          <td>${o.three_made??'—'}</td><td>${o.two_made??'—'}</td>
+          <td class="${cc(o.ast,oBase.ast,true)}">${o.ast??'—'}</td>
+          <td class="${cc(o.tov,oBase.tov)}">${o.tov??'—'}</td>
+          <td class="${cc(o.stl,oBase.stl,true)}">${o.stl??'—'}</td>
+          <td class="${cc(o.blk,oBase.blk,true)}">${o.blk??'—'}</td>
+          <td>${o.oreb??'—'}</td><td>${o.dreb??'—'}</td><td>${o.treb??'—'}</td>
+          <td class="${g.tz_difference>=2?'gl-tz':''}">${g.tz_difference}</td>
+          <td style="color:${rc}">${doff<=0?'B2B':doff+'d'}</td>
+          <td style="color:${playoff?'#a78bfa':'var(--dim)'};font-size:0.7rem">${playoff?'PO':'RS'}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table></div>
+  <div class="pagination">
+    <button class="page-btn" onclick="changePage(-1)" ${safePage===0?'disabled':''}>← Prev</button>
+    <span class="page-info">${safePage+1} / ${totalPages||1}</span>
+    <button class="page-btn" onclick="changePage(1)" ${safePage>=totalPages-1?'disabled':''}>Next →</button>
+  </div>`;
 }
 
-function setTab(tab) {
-  activeTab = tab;
-  if(selectedTeam) renderTeamView(selectedTeam);
-  else renderLeague();
+function renderTabs(team) {
+  const hasPlayoffs = team ? getTeamGames(team).some(g=>isPlayoff(g)) : false;
+  const tabs = team
+    ? [
+        ['overview','Overview'],
+        ['rest','Rest & Fatigue'],
+        ['timezone','Timezones'],
+        ['schedule','Schedule'],
+        ['gamelog','Game Log'],
+        ...(hasPlayoffs ? [['playoffs','Playoffs']] : [])
+      ]
+    : [['overview','League Overview']];
+  return `<div class="tabs">${tabs.map(([id,label])=>`
+    <button class="tab-btn ${activeTab===id?'active':''} ${id==='playoffs'?'playoff-tab':''}" onclick="setTab('${id}')">
+      ${label}${id==='playoffs'?'<span class="playoff-badge">NEW</span>':''}
+    </button>`).join('')}
+  </div>`;
 }
+
+function setTab(tab) { activeTab=tab; if(selectedTeam) renderTeamView(selectedTeam); else renderLeague(); }
 
 function renderLeague() {
-  const games = allGames;
-  const base = computeAvg(games,null);
-  const b2b = computeAvg(games.filter(g=>g.home_b2b||g.away_b2b),null);
-  const tz3 = computeAvg(getTz(games,3),null);
+  const games=allGames;
+  const regGames=games.filter(g=>!isPlayoff(g));
+  const base=computeAvg(regGames,null);
+  const b2b=computeAvg(regGames.filter(g=>g.home_b2b||g.away_b2b),null);
+  const tz3=computeAvg(getTz(regGames,3),null);
 
-  const rows = TEAMS.map(team=>{
+  const rows=TEAMS.map(team=>{
     const tg=getTeamGames(team);
-    const a=computeAvg(tg,team);
-    const tb2b=computeAvg(tg.filter(g=>getRestDays(g,team)===1),team);
-    const ttz=computeAvg(tg.filter(g=>g.tz_difference>=2),team);
-    const wins=tg.filter(g=>(g.home_team===team&&g.home_win==='W')||(g.away_team===team&&g.home_win==='L')).length;
-    return{team,a,tb2b,ttz,games:tg.length,wins,losses:tg.length-wins};
+    const reg=tg.filter(g=>!isPlayoff(g));
+    const po=tg.filter(g=>isPlayoff(g));
+    const a=computeAvg(reg,team);
+    const tb2b=computeAvg(reg.filter(g=>getRestDays(g,team)===1),team);
+    const ttz=computeAvg(reg.filter(g=>g.tz_difference>=2),team);
+    const wins=reg.filter(g=>(g.home_team===team&&g.home_win==='W')||(g.away_team===team&&g.home_win==='L')).length;
+    const poWins=po.filter(g=>(g.home_team===team&&g.home_win==='W')||(g.away_team===team&&g.home_win==='L')).length;
+    return{team,a,tb2b,ttz,games:reg.length,wins,losses:reg.length-wins,poGames:po.length,poWins};
   }).sort((a,b)=>(b.a.three_pct||0)-(a.a.three_pct||0));
 
-  document.getElementById('app').innerHTML = `
+  document.getElementById('app').innerHTML=`
     ${renderTabs(null)}
     <div class="stats-grid">
-      <div class="stat-card"><div class="label">Avg Points</div><div class="value">${base.pts??'—'}</div><div class="sub">${games.length} games</div></div>
-      <div class="stat-card"><div class="label">Avg 3P%</div><div class="value">${base.three_pct??'—'}%</div><div class="sub">league baseline</div></div>
-      <div class="stat-card"><div class="label">B2B 3P%</div><div class="value" style="color:${(b2b.three_pct||0)<(base.three_pct||0)?'var(--red)':'var(--green)'}">${b2b.three_pct??'—'}%</div><div class="sub">${games.filter(g=>g.home_b2b||g.away_b2b).length} B2B games</div></div>
+      <div class="stat-card"><div class="label">Avg Points (RS)</div><div class="value">${base.pts??'—'}</div><div class="sub">${regGames.length} reg season games</div></div>
+      <div class="stat-card"><div class="label">Avg 3P% (RS)</div><div class="value">${base.three_pct??'—'}%</div><div class="sub">league baseline</div></div>
+      <div class="stat-card"><div class="label">B2B 3P%</div><div class="value" style="color:${(b2b.three_pct||0)<(base.three_pct||0)?'var(--red)':'var(--green)'}">${b2b.three_pct??'—'}%</div><div class="sub">${regGames.filter(g=>g.home_b2b||g.away_b2b).length} B2B games</div></div>
       <div class="stat-card"><div class="label">Avg Assists</div><div class="value">${base.ast??'—'}</div><div class="sub">per game</div></div>
-      <div class="stat-card"><div class="label">Avg Turnovers</div><div class="value">${base.tov??'—'}</div><div class="sub">per game</div></div>
-      <div class="stat-card"><div class="label">3-Zone 3P%</div><div class="value" style="color:${(tz3.three_pct||0)<(base.three_pct||0)?'var(--red)':'var(--green)'}">${tz3.three_pct??'—'}%</div><div class="sub">${getTz(games,3).length} games</div></div>
+      <div class="stat-card"><div class="label">Playoff Teams</div><div class="value" style="color:#a78bfa">${rows.filter(r=>r.poGames>0).length}</div><div class="sub">in postseason</div></div>
+      <div class="stat-card"><div class="label">3-Zone 3P%</div><div class="value" style="color:${(tz3.three_pct||0)<(base.three_pct||0)?'var(--red)':'var(--green)'}">${tz3.three_pct??'—'}%</div><div class="sub">${getTz(regGames,3).length} games</div></div>
     </div>
-    <div class="section-title">All Teams</div>
+    <div class="section-title">All Teams — Regular Season</div>
     <div class="table-wrap"><table>
       <thead><tr>
-        <th>#</th><th style="text-align:left">Team</th><th>G</th><th>W-L</th>
+        <th>#</th><th style="text-align:left">Team</th><th>RS G</th><th>W-L</th>
         <th>PTS</th><th>3P%</th><th>2P%</th><th>3PM</th><th>2PM</th><th>AST</th><th>TOV</th><th>STL</th><th>BLK</th><th>REB</th>
-        <th>B2B 3P%</th><th>2+TZ 3P%</th>
+        <th>B2B 3P%</th><th>2+TZ 3P%</th><th>PO Games</th><th>PO W-L</th>
       </tr></thead>
       <tbody>
         ${rows.map((r,i)=>`<tr>
           <td style="color:var(--dim);font-size:0.7rem">#${i+1}</td>
-          <td style="text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:var(--dim)" onclick="selectTeam('${r.team}')">${ABBR[r.team]}</td>
+          <td style="text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:var(--dim)" onclick="selectTeam('${r.team}')">${ABBR[r.team]}${r.poGames>0?'<span class="playoff-badge" style="margin-left:6px">PO</span>':''}</td>
           <td>${r.games}</td><td style="color:var(--muted)">${r.wins}-${r.losses}</td>
           <td>${r.a.pts??'—'}</td><td>${r.a.three_pct??'—'}%</td><td>${r.a.two_pct??'—'}%</td>
           <td>${r.a.three_made??'—'}</td><td>${r.a.two_made??'—'}</td>
           <td>${r.a.ast??'—'}</td><td>${r.a.tov??'—'}</td><td>${r.a.stl??'—'}</td><td>${r.a.blk??'—'}</td><td>${r.a.treb??'—'}</td>
           <td class="${cc(r.tb2b.three_pct,r.a.three_pct)}">${r.tb2b.three_pct??'—'}%</td>
           <td class="${cc(r.ttz.three_pct,r.a.three_pct)}">${r.ttz.three_pct??'—'}%</td>
+          <td style="color:${r.poGames>0?'#a78bfa':'var(--dim)'}">${r.poGames>0?r.poGames:'—'}</td>
+          <td style="color:${r.poGames>0?'#a78bfa':'var(--dim)'}">${r.poGames>0?r.poWins+'-'+(r.poGames-r.poWins):'—'}</td>
         </tr>`).join('')}
       </tbody>
-    </table></div>
-  `;
+    </table></div>`;
 }
 
 function renderTeamView(team) {
-  const tg = getTeamGames(team).sort((a,b)=>b.game_date.localeCompare(a.game_date));
-  const colors = COLORS[team]||['#1D4289','#A7ADB0'];
-  const myDiv = DIVISION[team];
-  const wins = tg.filter(g=>(g.home_team===team&&g.home_win==='W')||(g.away_team===team&&g.home_win==='L')).length;
-  const losses = tg.length-wins;
-  const base = computeAvg(tg,team);
-  const oBase = computeAvg(tg,team,true);
-  const b2b = computeAvg(tg.filter(g=>getRestDays(g,team)===1),team);
+  const tg=getTeamGames(team).sort((a,b)=>b.game_date.localeCompare(a.game_date));
+  const reg=tg.filter(g=>!isPlayoff(g));
+  const po=tg.filter(g=>isPlayoff(g));
+  const colors=COLORS[team]||['#1D4289','#A7ADB0'];
+  const myDiv=DIVISION[team];
 
-  const banner = `<div class="team-banner" style="background:linear-gradient(135deg,${colors[0]}22,${colors[1]}11,var(--navy2));border:1px solid ${colors[0]}44;">
+  const base=computeAvg(reg,team);
+  const oBase=computeAvg(reg,team,true);
+  const poBase=computeAvg(po,team);
+  const poOBase=computeAvg(po,team,true);
+  const b2b=computeAvg(reg.filter(g=>getRestDays(g,team)===1),team);
+
+  const wins=reg.filter(g=>(g.home_team===team&&g.home_win==='W')||(g.away_team===team&&g.home_win==='L')).length;
+  const losses=reg.length-wins;
+  const poWins=po.filter(g=>(g.home_team===team&&g.home_win==='W')||(g.away_team===team&&g.home_win==='L')).length;
+
+  const banner=`<div class="team-banner" style="background:linear-gradient(135deg,${colors[0]}22,${colors[1]}11,var(--navy2));border:1px solid ${colors[0]}44;">
     <div class="banner-left">
       <div class="abbr" style="color:${colors[1]}">${ABBR[team]}</div>
       <div class="name">${team} · ${CONF[team]} · ${myDiv}</div>
     </div>
     <div class="banner-stats">
-      <div class="banner-stat"><div class="val" style="color:var(--gold)">${tg.length}</div><div class="lbl">Games</div></div>
-      <div class="banner-stat"><div class="val" style="color:var(--gold)">${wins}-${losses}</div><div class="lbl">Record</div></div>
-      <div class="banner-stat"><div class="val" style="color:var(--gold)">${r1(wins/tg.length*100)}%</div><div class="lbl">Win %</div></div>
-      <div class="banner-stat"><div class="val" style="color:var(--gold)">${base.pts??'—'}</div><div class="lbl">Avg PTS</div></div>
-      <div class="banner-stat"><div class="val" style="color:var(--gold)">${base.three_pct??'—'}%</div><div class="lbl">3P%</div></div>
+      <div class="banner-stat"><div class="val" style="color:var(--gold)">${reg.length}</div><div class="lbl">RS Games</div></div>
+      <div class="banner-stat"><div class="val" style="color:var(--gold)">${wins}-${losses}</div><div class="lbl">RS Record</div></div>
+      <div class="banner-stat"><div class="val" style="color:var(--gold)">${reg.length?r1(wins/reg.length*100):0}%</div><div class="lbl">Win %</div></div>
+      <div class="banner-stat"><div class="val" style="color:var(--gold)">${base.pts??'—'}</div><div class="lbl">RS PTS</div></div>
+      <div class="banner-stat"><div class="val" style="color:var(--gold)">${base.three_pct??'—'}%</div><div class="lbl">RS 3P%</div></div>
+      ${po.length>0?`
+      <div class="banner-stat"><div class="val" style="color:#a78bfa">${po.length}</div><div class="lbl">PO Games</div></div>
+      <div class="banner-stat"><div class="val" style="color:#a78bfa">${poWins}-${po.length-poWins}</div><div class="lbl">PO Record</div></div>
+      <div class="banner-stat"><div class="val" style="color:#a78bfa">${poBase.three_pct??'—'}%</div><div class="lbl">PO 3P%</div></div>`:''}
       <div class="banner-stat"><div class="val" style="color:${(b2b.three_pct||0)<(base.three_pct||0)?'var(--red)':'var(--green)'}">${b2b.three_pct??'—'}%</div><div class="lbl">B2B 3P%</div></div>
-      <div class="banner-stat"><div class="val" style="color:var(--gold)">${base.ast??'—'}</div><div class="lbl">AST</div></div>
-      <div class="banner-stat"><div class="val" style="color:var(--gold)">${base.tov??'—'}</div><div class="lbl">TOV</div></div>
     </div>
   </div>`;
 
-  let content = '';
+  let content='';
 
   if(activeTab==='overview') {
-    const teamRows = TEAMS.map(t=>{
+    const allTeamRows=TEAMS.map(t=>{
       const tgT=getTeamGames(t);
-      const a=computeAvg(tgT,t);
-      const tb2b=computeAvg(tgT.filter(g=>getRestDays(g,t)===1),t);
-      const ttz=computeAvg(tgT.filter(g=>g.tz_difference>=2),t);
-      const w=tgT.filter(g=>(g.home_team===t&&g.home_win==='W')||(g.away_team===t&&g.home_win==='L')).length;
-      return{t,a,tb2b,ttz,games:tgT.length,wins:w,losses:tgT.length-w};
+      const regT=tgT.filter(g=>!isPlayoff(g));
+      const a=computeAvg(regT,t);
+      const tb2b=computeAvg(regT.filter(g=>getRestDays(g,t)===1),t);
+      const ttz=computeAvg(regT.filter(g=>g.tz_difference>=2),t);
+      const w=regT.filter(g=>(g.home_team===t&&g.home_win==='W')||(g.away_team===t&&g.home_win==='L')).length;
+      return{t,a,tb2b,ttz,games:regT.length,wins:w,losses:regT.length-w};
     }).sort((a,b)=>(b.a.three_pct||0)-(a.a.three_pct||0));
 
-    content = `
+    content=`
       <div class="two-col" style="margin-bottom:28px;">
         <div>
           <div class="section-title">${ABBR[team]} Avg Stats <span class="tag tag-team">${ABBR[team]}</span></div>
           <div class="table-wrap"><table>
-            <thead><tr><th style="text-align:left">Stat</th><th>Per Game</th></tr></thead>
+            <thead><tr><th style="text-align:left">Stat</th><th>RS Avg</th>${po.length>0?'<th style="color:#a78bfa">PO Avg</th>':''}</tr></thead>
             <tbody>
-              ${FIELDS.map(f=>`<tr><td>${f.label}</td><td>${base[f.key]!=null?base[f.key]+(f.suf||''):'—'}</td></tr>`).join('')}
+              ${FIELDS.map(f=>`<tr>
+                <td>${f.label}</td>
+                <td>${base[f.key]!=null?base[f.key]+(f.suf||''):'—'}</td>
+                ${po.length>0?`<td style="color:#a78bfa">${poBase[f.key]!=null?poBase[f.key]+(f.suf||''):'—'}</td>`:''}
+              </tr>`).join('')}
             </tbody>
           </table></div>
         </div>
         <div>
           <div class="section-title">Opponents Avg Stats <span class="tag tag-opp">OPP</span></div>
           <div class="table-wrap"><table>
-            <thead><tr><th style="text-align:left">Stat</th><th>Per Game</th></tr></thead>
+            <thead><tr><th style="text-align:left">Stat</th><th>RS Avg</th>${po.length>0?'<th style="color:#a78bfa">PO Avg</th>':''}</tr></thead>
             <tbody>
-              ${FIELDS.map(f=>`<tr><td>${f.label}</td><td>${oBase[f.key]!=null?oBase[f.key]+(f.suf||''):'—'}</td></tr>`).join('')}
+              ${FIELDS.map(f=>`<tr>
+                <td>${f.label}</td>
+                <td>${oBase[f.key]!=null?oBase[f.key]+(f.suf||''):'—'}</td>
+                ${po.length>0?`<td style="color:#a78bfa">${poOBase[f.key]!=null?poOBase[f.key]+(f.suf||''):'—'}</td>`:''}
+              </tr>`).join('')}
             </tbody>
           </table></div>
         </div>
       </div>
-      <div class="section-title">All Teams Ranked by 3P%</div>
+      <div class="section-title">All Teams Ranked by 3P% (Regular Season)</div>
       <div class="table-wrap"><table>
         <thead><tr><th>#</th><th style="text-align:left">Team</th><th>G</th><th>W-L</th><th>PTS</th><th>3P%</th><th>2P%</th><th>AST</th><th>TOV</th><th>REB</th><th>B2B 3P%</th><th>2+TZ 3P%</th></tr></thead>
         <tbody>
-          ${teamRows.map((r,i)=>`<tr style="${r.t===team?'background:rgba(251,191,36,0.06)':''}">
+          ${allTeamRows.map((r,i)=>`<tr style="${r.t===team?'background:rgba(251,191,36,0.06)':''}">
             <td style="color:var(--dim);font-size:0.7rem">#${i+1}</td>
             <td style="text-align:left;${r.t===team?'color:var(--gold);font-weight:600':''}">${ABBR[r.t]}</td>
             <td>${r.games}</td><td style="color:var(--muted)">${r.wins}-${r.losses}</td>
@@ -437,77 +513,113 @@ function renderTeamView(team) {
   }
 
   else if(activeTab==='rest') {
-    const s1=[
-      {label:'All Games',games:tg.length,stats:base},
-      {label:'B2B (0 off)',games:tg.filter(g=>getRestDays(g,team)===1).length,stats:computeAvg(tg.filter(g=>getRestDays(g,team)===1),team)},
-      {label:'1 Day Off',games:tg.filter(g=>getRestDays(g,team)===2).length,stats:computeAvg(tg.filter(g=>getRestDays(g,team)===2),team)},
-      {label:'2+ Days Off',games:tg.filter(g=>getRestDays(g,team)>=3).length,stats:computeAvg(tg.filter(g=>getRestDays(g,team)>=3),team)},
+    const mk=(games,opp=false)=>[
+      {label:'All Games',games:games.length,stats:computeAvg(games,team,opp)},
+      {label:'B2B',games:games.filter(g=>getRestDays(g,team)===1).length,stats:computeAvg(games.filter(g=>getRestDays(g,team)===1),team,opp)},
+      {label:'1 Day Off',games:games.filter(g=>getRestDays(g,team)===2).length,stats:computeAvg(games.filter(g=>getRestDays(g,team)===2),team,opp)},
+      {label:'2+ Days Off',games:games.filter(g=>getRestDays(g,team)>=3).length,stats:computeAvg(games.filter(g=>getRestDays(g,team)>=3),team,opp)},
     ];
-    const s2=[
-      {label:'All Games',games:tg.length,stats:oBase},
-      {label:'B2B (0 off)',games:tg.filter(g=>getRestDays(g,team)===1).length,stats:computeAvg(tg.filter(g=>getRestDays(g,team)===1),team,true)},
-      {label:'1 Day Off',games:tg.filter(g=>getRestDays(g,team)===2).length,stats:computeAvg(tg.filter(g=>getRestDays(g,team)===2),team,true)},
-      {label:'2+ Days Off',games:tg.filter(g=>getRestDays(g,team)>=3).length,stats:computeAvg(tg.filter(g=>getRestDays(g,team)>=3),team,true)},
-    ];
-    content = `
-      <div class="section-title">${ABBR[team]} Stats by Rest <span class="tag tag-team">${ABBR[team]}</span></div>
-      ${scenarioTable(s1)}
-      <div class="section-title">Opponent Stats by Rest <span class="tag tag-opp">OPP</span></div>
-      ${scenarioTable(s2,true)}`;
+    content=`
+      <div class="section-title">${ABBR[team]} Stats by Rest <span class="tag tag-team">${ABBR[team]}</span></div>${scenarioTable(mk(reg))}
+      <div class="section-title">Opponent Stats by Rest <span class="tag tag-opp">OPP</span></div>${scenarioTable(mk(reg,true),true)}`;
   }
 
   else if(activeTab==='timezone') {
-    const s1=[
-      {label:'All',games:tg.length,stats:base},
-      {label:'Same TZ',games:getTz(tg,0).length,stats:computeAvg(getTz(tg,0),team)},
-      {label:'1 Zone',games:getTz(tg,1).length,stats:computeAvg(getTz(tg,1),team)},
-      {label:'2 Zones',games:getTz(tg,2).length,stats:computeAvg(getTz(tg,2),team)},
-      {label:'3 Zones',games:getTz(tg,3).length,stats:computeAvg(getTz(tg,3),team)},
+    const mk=(games,opp=false)=>[
+      {label:'All',games:games.length,stats:computeAvg(games,team,opp)},
+      {label:'Same TZ',games:getTz(games,0).length,stats:computeAvg(getTz(games,0),team,opp)},
+      {label:'1 Zone',games:getTz(games,1).length,stats:computeAvg(getTz(games,1),team,opp)},
+      {label:'2 Zones',games:getTz(games,2).length,stats:computeAvg(getTz(games,2),team,opp)},
+      {label:'3 Zones',games:getTz(games,3).length,stats:computeAvg(getTz(games,3),team,opp)},
     ];
-    const s2=[
-      {label:'All',games:tg.length,stats:oBase},
-      {label:'Same TZ',games:getTz(tg,0).length,stats:computeAvg(getTz(tg,0),team,true)},
-      {label:'1 Zone',games:getTz(tg,1).length,stats:computeAvg(getTz(tg,1),team,true)},
-      {label:'2 Zones',games:getTz(tg,2).length,stats:computeAvg(getTz(tg,2),team,true)},
-      {label:'3 Zones',games:getTz(tg,3).length,stats:computeAvg(getTz(tg,3),team,true)},
-    ];
-    content = `
-      <div class="section-title">${ABBR[team]} Stats by Timezone <span class="tag tag-team">${ABBR[team]}</span></div>
-      ${scenarioTable(s1)}
-      <div class="section-title">Opponent Stats by Timezone <span class="tag tag-opp">OPP</span></div>
-      ${scenarioTable(s2,true)}`;
+    content=`
+      <div class="section-title">${ABBR[team]} Stats by Timezone <span class="tag tag-team">${ABBR[team]}</span></div>${scenarioTable(mk(reg))}
+      <div class="section-title">Opponent Stats by Timezone <span class="tag tag-opp">OPP</span></div>${scenarioTable(mk(reg,true),true)}`;
   }
 
   else if(activeTab==='schedule') {
-    const s1=[
-      {label:'All',games:tg.length,stats:base},
-      {label:'Conf',games:tg.filter(g=>isConf(g,team)).length,stats:computeAvg(tg.filter(g=>isConf(g,team)),team)},
-      {label:'Non-Conf',games:tg.filter(g=>!isConf(g,team)).length,stats:computeAvg(tg.filter(g=>!isConf(g,team)),team)},
-      {label:'Division',games:tg.filter(g=>isDivision(g,team)).length,stats:computeAvg(tg.filter(g=>isDivision(g,team)),team)},
+    const mk=(games,opp=false)=>[
+      {label:'All',games:games.length,stats:computeAvg(games,team,opp)},
+      {label:'Conf',games:games.filter(g=>isConf(g,team)).length,stats:computeAvg(games.filter(g=>isConf(g,team)),team,opp)},
+      {label:'Non-Conf',games:games.filter(g=>!isConf(g,team)).length,stats:computeAvg(games.filter(g=>!isConf(g,team)),team,opp)},
+      {label:'Division',games:games.filter(g=>isDivision(g,team)).length,stats:computeAvg(games.filter(g=>isDivision(g,team)),team,opp)},
     ];
-    const s2=[
-      {label:'All',games:tg.length,stats:oBase},
-      {label:'Conf',games:tg.filter(g=>isConf(g,team)).length,stats:computeAvg(tg.filter(g=>isConf(g,team)),team,true)},
-      {label:'Non-Conf',games:tg.filter(g=>!isConf(g,team)).length,stats:computeAvg(tg.filter(g=>!isConf(g,team)),team,true)},
-      {label:'Division',games:tg.filter(g=>isDivision(g,team)).length,stats:computeAvg(tg.filter(g=>isDivision(g,team)),team,true)},
-    ];
-    content = `
-      <div class="section-title">${ABBR[team]} Stats by Schedule <span class="tag tag-team">${ABBR[team]}</span></div>
-      ${scenarioTable(s1)}
-      <div class="section-title">Opponent Stats by Schedule <span class="tag tag-opp">OPP</span></div>
-      ${scenarioTable(s2,true)}`;
+    content=`
+      <div class="section-title">${ABBR[team]} Stats by Schedule <span class="tag tag-team">${ABBR[team]}</span></div>${scenarioTable(mk(reg))}
+      <div class="section-title">Opponent Stats by Schedule <span class="tag tag-opp">OPP</span></div>${scenarioTable(mk(reg,true),true)}`;
+  }
+
+  else if(activeTab==='playoffs') {
+    if(po.length===0) {
+      content=`<div class="no-playoffs">🏆 ${team} has not played any playoff games yet.</div>`;
+    } else {
+      const mk=(games,opp=false)=>[
+        {label:'All PO',games:games.length,stats:computeAvg(games,team,opp)},
+        {label:'vs RS Avg',games:reg.length,stats:opp?oBase:base},
+      ];
+      content=`
+        <div class="stats-grid">
+          <div class="stat-card"><div class="label">PO Record</div><div class="value" style="color:#a78bfa">${poWins}-${po.length-poWins}</div><div class="sub">${po.length} games played</div></div>
+          <div class="stat-card"><div class="label">PO Avg PTS</div><div class="value" style="color:#a78bfa">${poBase.pts??'—'}</div><div class="sub">vs RS: ${base.pts??'—'}</div></div>
+          <div class="stat-card"><div class="label">PO 3P%</div><div class="value" style="color:${(poBase.three_pct||0)>=(base.three_pct||0)?'var(--green)':'var(--red)'}">${poBase.three_pct??'—'}%</div><div class="sub">RS: ${base.three_pct??'—'}%</div></div>
+          <div class="stat-card"><div class="label">PO Assists</div><div class="value" style="color:#a78bfa">${poBase.ast??'—'}</div><div class="sub">RS: ${base.ast??'—'}</div></div>
+          <div class="stat-card"><div class="label">PO Turnovers</div><div class="value" style="color:#a78bfa">${poBase.tov??'—'}</div><div class="sub">RS: ${base.tov??'—'}</div></div>
+          <div class="stat-card"><div class="label">Opp PO 3P%</div><div class="value" style="color:${(poOBase.three_pct||0)<=(oBase.three_pct||0)?'var(--green)':'var(--red)'}">${poOBase.three_pct??'—'}%</div><div class="sub">RS: ${oBase.three_pct??'—'}%</div></div>
+        </div>
+        <div class="section-title">${ABBR[team]} Playoff vs Regular Season <span class="tag tag-team">${ABBR[team]}</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th style="text-align:left">Stat</th><th style="color:#a78bfa">Playoffs (${po.length}g)</th><th>Regular Season (${reg.length}g)</th><th>Diff</th></tr></thead>
+          <tbody>
+            ${FIELDS.map(f=>{
+              const pv=poBase[f.key]; const rv=base[f.key];
+              const diff=pv!=null&&rv!=null?r1(pv-rv):null;
+              const better=diff!=null?(f.low?diff<-0.2:diff>0.2):false;
+              const worse=diff!=null?(f.low?diff>0.2:diff<-0.2):false;
+              return `<tr>
+                <td>${f.label}</td>
+                <td style="color:#a78bfa">${pv!=null?pv+(f.suf||''):'—'}</td>
+                <td>${rv!=null?rv+(f.suf||''):'—'}</td>
+                <td class="${better?'up':worse?'down':''}">${diff!=null?(diff>=0?'+':'')+diff+(f.suf||''):'—'}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table></div>
+        <div class="section-title">Opponent Stats: Playoffs vs Regular Season <span class="tag tag-opp">OPP</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th style="text-align:left">Stat</th><th style="color:#a78bfa">Playoffs (${po.length}g)</th><th>Regular Season (${reg.length}g)</th><th>Diff</th></tr></thead>
+          <tbody>
+            ${FIELDS.map(f=>{
+              const pv=poOBase[f.key]; const rv=oBase[f.key];
+              const diff=pv!=null&&rv!=null?r1(pv-rv):null;
+              const better=diff!=null?(f.low?diff>0.2:diff<-0.2):false;
+              const worse=diff!=null?(f.low?diff<-0.2:diff>0.2):false;
+              return `<tr>
+                <td>${f.label}</td>
+                <td style="color:#a78bfa">${pv!=null?pv+(f.suf||''):'—'}</td>
+                <td>${rv!=null?rv+(f.suf||''):'—'}</td>
+                <td class="${better?'up':worse?'down':''}">${diff!=null?(diff>=0?'+':'')+diff+(f.suf||''):'—'}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table></div>
+        <div class="section-title">Playoff Game Log</div>
+        ${gameLogTable(po,team,poBase,poOBase,myDiv,po,0,1)}`;
+    }
   }
 
   else if(activeTab==='gamelog') {
-    const filtered = applyFilter(tg,team);
-    const totalPages = Math.ceil(filtered.length/GL_PER_PAGE);
-    const safePage = Math.min(glPage,Math.max(0,totalPages-1));
-    const paginated = filtered.slice(safePage*GL_PER_PAGE,(safePage+1)*GL_PER_PAGE);
-
-    content = `
+    const filtered=applyFilter(tg,team);
+    const totalPages=Math.ceil(filtered.length/GL_PER_PAGE);
+    const safePage=Math.min(glPage,Math.max(0,totalPages-1));
+    const paginated=filtered.slice(safePage*GL_PER_PAGE,(safePage+1)*GL_PER_PAGE);
+    content=`
       <div class="gamelog-controls">
         <select onchange="setFilter(this.value)">
           <option value="all" ${glFilter==='all'?'selected':''}>All Games</option>
+          <optgroup label="── Season ──">
+            <option value="regular" ${glFilter==='regular'?'selected':''}>Regular Season Only</option>
+            <option value="playoff" ${glFilter==='playoff'?'selected':''}>Playoffs Only</option>
+          </optgroup>
           <optgroup label="── Rest ──">
             <option value="b2b" ${glFilter==='b2b'?'selected':''}>Back-to-Back (0 days off)</option>
             <option value="rest1" ${glFilter==='rest1'?'selected':''}>1 Day Off</option>
@@ -529,78 +641,13 @@ function renderTeamView(team) {
         </select>
         <span class="gamelog-count">${filtered.length} games</span>
       </div>
-      <div class="table-wrap"><table>
-        <thead>
-          <tr>
-            <th colspan="5"></th>
-            <th colspan="12" style="text-align:center;color:var(--gold);border-left:1px solid var(--border)">${ABBR[team]}</th>
-            <th colspan="12" style="text-align:center;color:var(--red);border-left:1px solid var(--border)">Opponent</th>
-            <th colspan="3"></th>
-          </tr>
-          <tr>
-            <th>Date</th><th style="text-align:left">Opp</th><th>H/A</th><th>Score</th><th>Res</th>
-            <th style="border-left:1px solid var(--border)">PTS</th><th>3P%</th><th>2P%</th><th>3PM</th><th>2PM</th><th>AST</th><th>TOV</th><th>STL</th><th>BLK</th><th>OREB</th><th>DREB</th><th>REB</th>
-            <th style="border-left:1px solid var(--border)">PTS</th><th>3P%</th><th>2P%</th><th>3PM</th><th>2PM</th><th>AST</th><th>TOV</th><th>STL</th><th>BLK</th><th>OREB</th><th>DREB</th><th>REB</th>
-            <th>TZ</th><th>Off</th><th>Conf</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${paginated.map(g=>{
-            const isHome=g.home_team===team;
-            const opp=getOpp(g,team);
-            const myScore=isHome?g.home_score:g.away_score;
-            const oppScore=isHome?g.away_score:g.home_score;
-            const won=(isHome&&g.home_win==='W')||(!isHome&&g.home_win==='L');
-            const s=getMyStats(g,team);
-            const o=getOppStats(g,team);
-            const rd=getRestDays(g,team);
-            const doff=rd-1;
-            const rc=doff<=0?'var(--red)':doff===1?'var(--muted)':'var(--green)';
-            const conf=isConf(g,team);
-            const div=isDivision(g,team);
-            return `<tr>
-              <td style="color:var(--dim)">${g.game_date}</td>
-              <td style="text-align:left">${ABBR[opp]||opp} <span style="color:var(--dim);font-size:0.65rem">${CONF[opp]}</span></td>
-              <td style="color:var(--dim);font-size:0.7rem">${isHome?'HM':'AW'}</td>
-              <td>${myScore}-${oppScore}</td>
-              <td class="${won?'gl-win':'gl-loss'}">${won?'W':'L'}</td>
-              <td style="border-left:1px solid var(--border)" class="${cc(s.pts,base.pts)}">${s.pts??'—'}</td>
-              <td class="${cc(s.three_pct,base.three_pct)}">${s.three_pct!=null?s.three_pct+'%':'—'}</td>
-              <td class="${cc(s.two_pct,base.two_pct)}">${s.two_pct!=null?s.two_pct+'%':'—'}</td>
-              <td>${s.three_made??'—'}</td><td>${s.two_made??'—'}</td>
-              <td class="${cc(s.ast,base.ast)}">${s.ast??'—'}</td>
-              <td class="${cc(s.tov,base.tov,true)}">${s.tov??'—'}</td>
-              <td class="${cc(s.stl,base.stl)}">${s.stl??'—'}</td>
-              <td class="${cc(s.blk,base.blk)}">${s.blk??'—'}</td>
-              <td>${s.oreb??'—'}</td><td>${s.dreb??'—'}</td><td>${s.treb??'—'}</td>
-              <td style="border-left:1px solid var(--border)" class="${cc(o.pts,oBase.pts,true)}">${o.pts??'—'}</td>
-              <td class="${cc(o.three_pct,oBase.three_pct,true)}">${o.three_pct!=null?o.three_pct+'%':'—'}</td>
-              <td class="${cc(o.two_pct,oBase.two_pct,true)}">${o.two_pct!=null?o.two_pct+'%':'—'}</td>
-              <td>${o.three_made??'—'}</td><td>${o.two_made??'—'}</td>
-              <td class="${cc(o.ast,oBase.ast,true)}">${o.ast??'—'}</td>
-              <td class="${cc(o.tov,oBase.tov)}">${o.tov??'—'}</td>
-              <td class="${cc(o.stl,oBase.stl,true)}">${o.stl??'—'}</td>
-              <td class="${cc(o.blk,oBase.blk,true)}">${o.blk??'—'}</td>
-              <td>${o.oreb??'—'}</td><td>${o.dreb??'—'}</td><td>${o.treb??'—'}</td>
-              <td class="${g.tz_difference>=2?'gl-tz':''}">${g.tz_difference}</td>
-              <td style="color:${rc}">${doff<=0?'B2B':doff+'d'}</td>
-              <td style="color:var(--dim);font-size:0.7rem">${div?'DIV':conf?'CONF':'NON'}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table></div>
-      <div class="pagination">
-        <button class="page-btn" onclick="changePage(-1)" ${safePage===0?'disabled':''}>← Prev</button>
-        <span class="page-info">${safePage+1} / ${totalPages||1}</span>
-        <button class="page-btn" onclick="changePage(1)" ${safePage>=totalPages-1?'disabled':''}>Next →</button>
-      </div>`;
+      ${gameLogTable(paginated,team,base,oBase,myDiv,filtered,safePage,totalPages)}`;
   }
 
-  document.getElementById('app').innerHTML = banner + renderTabs(team) + content;
+  document.getElementById('app').innerHTML=banner+renderTabs(team)+content;
 }
 
 function setFilter(val) { glFilter=val; glPage=0; renderTeamView(selectedTeam); }
-
 function changePage(dir) {
   const tg=applyFilter(getTeamGames(selectedTeam).sort((a,b)=>b.game_date.localeCompare(a.game_date)),selectedTeam);
   const tp=Math.ceil(tg.length/GL_PER_PAGE);
@@ -610,7 +657,7 @@ function changePage(dir) {
 
 function selectTeam(val) {
   selectedTeam=val||null;
-  activeTab=val?'overview':'overview';
+  activeTab='overview';
   glFilter='all'; glPage=0;
   const dd=document.getElementById('teamDropdown');
   if(dd) dd.value=selectedTeam||'';
