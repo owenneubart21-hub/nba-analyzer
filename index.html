@@ -222,6 +222,7 @@ let playerTab = 'rest';
 let playerSearchQuery = '';
 let playerTeamFilter = '';
 let playerGlPage = 0;
+let searchDebounceTimer = null;
 const PLAYER_GL_PER_PAGE = 25;
 
 function r1(x) { return Math.round(x*10)/10; }
@@ -533,19 +534,16 @@ function renderPlayersTab() {
 
   let players = Object.values(playerMap);
 
-  // Apply team filter first
   const teamToFilter = playerTeamFilter || selectedTeam || '';
   if(teamToFilter) {
     players = players.filter(p=>p.team===teamToFilter);
   }
 
-  // Apply search
   const q = playerSearchQuery.trim().toLowerCase();
   if(q.length >= 2) {
     players = players.filter(p=>p.name.toLowerCase().includes(q));
   }
 
-  // Sort by avg points desc
   players = players.map(p=>({...p, avg: computePlayerAvg(p.rows)}))
     .sort((a,b)=>(b.avg.points||0)-(a.avg.points||0));
 
@@ -564,6 +562,7 @@ function renderPlayersTab() {
         placeholder="Search player name..."
         value="${playerSearchQuery}"
         oninput="onPlayerSearch(this.value)"
+        autocomplete="off"
       />
       <select class="player-team-filter" onchange="onPlayerTeamFilter(this.value)">
         <option value="">All Teams</option>
@@ -599,7 +598,10 @@ function renderPlayersTab() {
 
 function onPlayerSearch(val) {
   playerSearchQuery = val;
-  renderPlayersTab();
+  clearTimeout(searchDebounceTimer);
+  searchDebounceTimer = setTimeout(() => {
+    renderPlayersTab();
+  }, 300);
 }
 
 function onPlayerTeamFilter(val) {
