@@ -129,7 +129,6 @@
 
   .no-playoffs { text-align: center; padding: 60px 20px; color: var(--dim); font-family: var(--header); font-size: 0.9rem; }
 
-  /* Player search styles */
   .player-search-bar { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
   .player-search-input { font-family: var(--body); font-size: 0.9rem; background: #0e2450; border: 1px solid var(--border); color: var(--text); padding: 10px 16px; border-radius: 8px; outline: none; min-width: 280px; flex: 1; }
   .player-search-input:focus { border-color: #38bdf8; }
@@ -148,10 +147,9 @@
   .player-card .pc-stat .v { font-family: var(--mono); font-size: 1rem; color: var(--gold); }
   .player-card .pc-stat .l { font-family: var(--header); font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dim); margin-top: 2px; }
 
-  .player-profile { }
   .player-profile-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-  .player-profile-header .back-btn { font-family: var(--header); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: #38bdf8; background: none; border: 1px solid #38bdf8; border-radius: 6px; padding: 6px 16px; cursor: pointer; }
-  .player-profile-header .back-btn:hover { background: rgba(56,189,248,0.1); }
+  .back-btn { font-family: var(--header); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: #38bdf8; background: none; border: 1px solid #38bdf8; border-radius: 6px; padding: 6px 16px; cursor: pointer; }
+  .back-btn:hover { background: rgba(56,189,248,0.1); }
   .player-banner { border-radius: 14px; padding: 22px 28px; margin-bottom: 24px; background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(14,36,80,0.8)); border: 1px solid rgba(56,189,248,0.2); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
   .player-banner .pb-name { font-family: var(--header); font-weight: 800; font-size: 1.6rem; color: #38bdf8; }
   .player-banner .pb-team { font-family: var(--header); font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
@@ -219,7 +217,6 @@ let glFilter = 'all';
 let glPage = 0;
 const GL_PER_PAGE = 20;
 
-// Player state
 let selectedPlayer = null;
 let playerTab = 'rest';
 let playerSearchQuery = '';
@@ -228,7 +225,6 @@ let playerGlPage = 0;
 const PLAYER_GL_PER_PAGE = 25;
 
 function r1(x) { return Math.round(x*10)/10; }
-function r2(x) { return Math.round(x*100)/100; }
 function getTeamGames(team) { return allGames.filter(g=>g.home_team===team||g.away_team===team); }
 function getRestDays(g,team) { return g.home_team===team?g.home_rest_days:g.away_rest_days; }
 function getTz(games,tz) { return games.filter(g=>g.tz_difference===tz); }
@@ -320,8 +316,6 @@ const PLAYER_FIELDS=[
   {key:'plus_minus',label:'+/-',low:false},
 ];
 
-// ── Player stat helpers ────────────────────────────────────────────────────
-
 function computePlayerAvg(rows) {
   const active = rows.filter(r=>!r.did_not_play);
   if(!active.length) return {};
@@ -370,13 +364,11 @@ function renderPlayerProfile(playerName) {
 
   const team = rows[0].team;
   const base = computePlayerAvg(rows);
-
-  // Enrich rows with game context
   const enriched = rows.map(r=>({...r, _game: getPlayerGameContext(r)})).filter(r=>r._game);
 
-  const byRest = (rd) => enriched.filter(r=>r._game && (r._game.home_team===r.team ? r._game.home_rest_days : r._game.away_rest_days)===rd);
-  const byRestMin = (rd) => enriched.filter(r=>r._game && (r._game.home_team===r.team ? r._game.home_rest_days : r._game.away_rest_days)>=rd);
-  const byTz = (tz) => enriched.filter(r=>r._game && r._game.tz_difference===tz);
+  const byRest = (rd) => enriched.filter(r=>(r._game.home_team===r.team ? r._game.home_rest_days : r._game.away_rest_days)===rd);
+  const byRestMin = (rd) => enriched.filter(r=>(r._game.home_team===r.team ? r._game.home_rest_days : r._game.away_rest_days)>=rd);
+  const byTz = (tz) => enriched.filter(r=>r._game.tz_difference===tz);
 
   const restScenarios = [
     {label:'All Games', games:enriched.length, stats:computePlayerAvg(enriched)},
@@ -409,7 +401,6 @@ function renderPlayerProfile(playerName) {
     {label:'vs West', games:vsWest.length, stats:computePlayerAvg(vsWest)},
   ];
 
-  // Game log
   const sorted = [...enriched].sort((a,b)=>b.game_date.localeCompare(a.game_date));
   const totalPages = Math.ceil(sorted.length / PLAYER_GL_PER_PAGE);
   const safePage = Math.min(playerGlPage, Math.max(0, totalPages-1));
@@ -431,16 +422,16 @@ function renderPlayerProfile(playerName) {
         <tbody>
           ${paginated.map(r=>{
             const g=r._game;
-            const won = g ? ((g.home_team===r.team&&g.home_win==='W')||(g.away_team===r.team&&g.home_win==='L')) : null;
-            const rd = g ? (g.home_team===r.team?g.home_rest_days:g.away_rest_days) : null;
-            const doff = rd!=null?rd-1:null;
-            const rc = doff==null?'var(--dim)':doff<=0?'var(--red)':doff===1?'var(--muted)':'var(--green)';
-            const po = g ? isPlayoff(g) : false;
+            const won=((g.home_team===r.team&&g.home_win==='W')||(g.away_team===r.team&&g.home_win==='L'));
+            const rd=g.home_team===r.team?g.home_rest_days:g.away_rest_days;
+            const doff=rd-1;
+            const rc=doff<=0?'var(--red)':doff===1?'var(--muted)':'var(--green)';
+            const po=isPlayoff(g);
             return `<tr style="${po?'background:rgba(124,58,237,0.04)':''}">
               <td style="color:var(--dim)">${r.game_date}${po?'<span class="gl-playoff" style="margin-left:4px">PO</span>':''}</td>
               <td style="text-align:left">${ABBR[r.opponent]||r.opponent}</td>
               <td style="color:var(--dim);font-size:0.7rem">${r.is_home?'HM':'AW'}</td>
-              <td class="${won===null?'':won?'gl-win':'gl-loss'}">${won===null?'—':won?'W':'L'}</td>
+              <td class="${won?'gl-win':'gl-loss'}">${won?'W':'L'}</td>
               <td>${r.minutes!=null?r.minutes:'—'}</td>
               <td class="${cc(r.points,base.points)}">${r.points??'—'}</td>
               <td class="${cc(r.rebounds,base.rebounds)}">${r.rebounds??'—'}</td>
@@ -455,8 +446,8 @@ function renderPlayerProfile(playerName) {
               <td class="${cc(r.three_pct,base.three_pct)}">${r.three_pct!=null?r.three_pct+'%':'—'}</td>
               <td class="${cc(r.ft_pct,base.ft_pct)}">${r.ft_pct!=null?r.ft_pct+'%':'—'}</td>
               <td class="${r.plus_minus>0?'up':r.plus_minus<0?'down':''}">${r.plus_minus!=null?(r.plus_minus>0?'+':'')+r.plus_minus:'—'}</td>
-              <td style="color:${rc}">${doff==null?'—':doff<=0?'B2B':doff+'d'}</td>
-              <td class="${g&&g.tz_difference>=2?'gl-tz':''}">${g?g.tz_difference:'—'}</td>
+              <td style="color:${rc}">${doff<=0?'B2B':doff+'d'}</td>
+              <td class="${g.tz_difference>=2?'gl-tz':''}">${g.tz_difference}</td>
               <td style="color:${po?'#a78bfa':'var(--dim)'};font-size:0.7rem">${po?'PO':'RS'}</td>
             </tr>`;
           }).join('')}
@@ -479,30 +470,28 @@ function renderPlayerProfile(playerName) {
 
   document.getElementById('app').innerHTML = `
     ${renderTabs(selectedTeam)}
-    <div class="player-profile">
-      <div class="player-profile-header">
-        <button class="back-btn" onclick="backToPlayers()">← Back to Players</button>
+    <div class="player-profile-header">
+      <button class="back-btn" onclick="backToPlayers()">← Back to Players</button>
+    </div>
+    <div class="player-banner">
+      <div>
+        <div class="pb-name">${playerName}</div>
+        <div class="pb-team">${team} · ${CONF[team]||''}</div>
       </div>
-      <div class="player-banner">
-        <div>
-          <div class="pb-name">${playerName}</div>
-          <div class="pb-team">${team} · ${CONF[team]||''}</div>
-        </div>
-        <div class="player-banner-stats">
-          <div class="player-banner-stat"><div class="val">${base.points??'—'}</div><div class="lbl">PPG</div></div>
-          <div class="player-banner-stat"><div class="val">${base.rebounds??'—'}</div><div class="lbl">RPG</div></div>
-          <div class="player-banner-stat"><div class="val">${base.assists??'—'}</div><div class="lbl">APG</div></div>
-          <div class="player-banner-stat"><div class="val">${base.minutes??'—'}</div><div class="lbl">MPG</div></div>
-          <div class="player-banner-stat"><div class="val">${base.fg_pct??'—'}%</div><div class="lbl">FG%</div></div>
-          <div class="player-banner-stat"><div class="val">${base.three_pct??'—'}%</div><div class="lbl">3P%</div></div>
-          <div class="player-banner-stat"><div class="val">${enriched.length}</div><div class="lbl">Games</div></div>
-        </div>
+      <div class="player-banner-stats">
+        <div class="player-banner-stat"><div class="val">${base.points??'—'}</div><div class="lbl">PPG</div></div>
+        <div class="player-banner-stat"><div class="val">${base.rebounds??'—'}</div><div class="lbl">RPG</div></div>
+        <div class="player-banner-stat"><div class="val">${base.assists??'—'}</div><div class="lbl">APG</div></div>
+        <div class="player-banner-stat"><div class="val">${base.minutes??'—'}</div><div class="lbl">MPG</div></div>
+        <div class="player-banner-stat"><div class="val">${base.fg_pct??'—'}%</div><div class="lbl">FG%</div></div>
+        <div class="player-banner-stat"><div class="val">${base.three_pct??'—'}%</div><div class="lbl">3P%</div></div>
+        <div class="player-banner-stat"><div class="val">${enriched.length}</div><div class="lbl">Games</div></div>
       </div>
-      <div class="player-tabs">
-        ${tabs.map(([id,label])=>`<button class="player-tab-btn ${playerTab===id?'active':''}" onclick="setPlayerTab('${id}','${playerName}')">${label}</button>`).join('')}
-      </div>
-      ${tabContent[playerTab]||''}
-    </div>`;
+    </div>
+    <div class="player-tabs">
+      ${tabs.map(([id,label])=>`<button class="player-tab-btn ${playerTab===id?'active':''}" onclick="setPlayerTab('${id}','${playerName.replace(/'/g,"\\'")}')">${label}</button>`).join('')}
+    </div>
+    ${tabContent[playerTab]||''}`;
 }
 
 function setPlayerTab(tab, playerName) {
@@ -533,7 +522,6 @@ function openPlayer(playerName) {
 }
 
 function renderPlayersTab() {
-  // Build player list from allPlayerStats
   const playerMap = {};
   for(const r of allPlayerStats) {
     if(r.did_not_play) continue;
@@ -545,22 +533,23 @@ function renderPlayersTab() {
 
   let players = Object.values(playerMap);
 
-  // Apply team filter
-  if(playerTeamFilter) {
-    players = players.filter(p=>p.team===playerTeamFilter);
-  } else if(selectedTeam) {
-    players = players.filter(p=>p.team===selectedTeam);
+  // Apply team filter first
+  const teamToFilter = playerTeamFilter || selectedTeam || '';
+  if(teamToFilter) {
+    players = players.filter(p=>p.team===teamToFilter);
   }
 
   // Apply search
-  if(playerSearchQuery.length >= 2) {
-    const q = playerSearchQuery.toLowerCase();
-    players = players.filter(p=>p.player_name.toLowerCase().includes(q));
+  const q = playerSearchQuery.trim().toLowerCase();
+  if(q.length >= 2) {
+    players = players.filter(p=>p.name.toLowerCase().includes(q));
   }
 
   // Sort by avg points desc
   players = players.map(p=>({...p, avg: computePlayerAvg(p.rows)}))
     .sort((a,b)=>(b.avg.points||0)-(a.avg.points||0));
+
+  const showGrid = q.length >= 2 || teamToFilter;
 
   const east = TEAMS.filter(t=>CONF[t]==='East');
   const west = TEAMS.filter(t=>CONF[t]==='West');
@@ -587,7 +576,7 @@ function renderPlayersTab() {
       </select>
       <span class="gamelog-count">${players.length} players</span>
     </div>
-    ${playerSearchQuery.length < 2 && !playerTeamFilter && !selectedTeam
+    ${!showGrid
       ? `<div class="search-hint">Type a player name or select a team to browse players.</div>`
       : players.length === 0
         ? `<div class="search-hint">No players found.</div>`
@@ -617,8 +606,6 @@ function onPlayerTeamFilter(val) {
   playerTeamFilter = val;
   renderPlayersTab();
 }
-
-// ── Existing render helpers ────────────────────────────────────────────────
 
 function scenarioTable(scenarios,oppMode=false) {
   const base=scenarios[0].stats;
@@ -828,7 +815,11 @@ function renderTeamView(team) {
     </div>
   </div>`;
 
-  if(activeTab==='players') { document.getElementById('app').innerHTML=banner+renderTabs(team); renderPlayersTab(); return; }
+  if(activeTab==='players') {
+    document.getElementById('app').innerHTML=banner+renderTabs(team);
+    renderPlayersTab();
+    return;
+  }
 
   let content='';
 
@@ -1033,6 +1024,7 @@ function selectTeam(val) {
   activeTab='overview';
   glFilter='all'; glPage=0;
   selectedPlayer=null;
+  playerTeamFilter='';
   const dd=document.getElementById('teamDropdown');
   if(dd) dd.value=selectedTeam||'';
   if(selectedTeam) renderTeamView(selectedTeam);
@@ -1040,7 +1032,6 @@ function selectTeam(val) {
 }
 
 async function loadData() {
-  // Load games
   let allG=[]; let from=0;
   while(true) {
     const{data,error}=await sb.from('NBA_Games').select('*').range(from,from+499);
@@ -1051,7 +1042,6 @@ async function loadData() {
   }
   allGames=allG;
 
-  // Load player stats
   let allP=[]; from=0;
   while(true) {
     const{data,error}=await sb.from('player_stats').select('*').range(from,from+499);
